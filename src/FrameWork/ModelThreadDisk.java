@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 
 import models.BaseModel;
 
-public class ModelThreadDiskNew extends Thread{
+public class ModelThreadDisk extends Thread{
 	
    private BaseModel BaseModel;
 
@@ -25,7 +25,7 @@ public class ModelThreadDiskNew extends Thread{
 
 
    
-   public ModelThreadDiskNew(BaseModel BaseModel,int rounds, int ID,int TotalThreads,String File,int minID,int maxID,BufferedReader br,DataPreparer dataPreparer, boolean verbose)
+   public ModelThreadDisk(BaseModel BaseModel,int rounds, int ID,int TotalThreads,String File,int minID,int maxID,BufferedReader br,DataPreparer dataPreparer, boolean verbose)
    {
       this.BaseModel = BaseModel;
       this.rounds = rounds;

@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 
 import models.BaseModel;
 
-public class ModelThreadingDiskNew {
+public class ModelThreadingDisk {
 	public boolean verbose= false;
 	   public String location="";
 	
 	public void train(BaseModel BaseModel,int rounds,int threads, String File,int minID,int maxID,DataPreparer dataPreparer) throws InterruptedException{
-		ModelThreadDiskNew[] ModelThreads= new ModelThreadDiskNew[threads];
+		ModelThreadDisk[] ModelThreads= new ModelThreadDisk[threads];
 		BufferedReader[] br =new BufferedReader[threads];
 		InitBR[] BRthread = new InitBR[threads];
 		for(int i=0;i<threads;i++){
@@ -23,7 +23,7 @@ public class ModelThreadingDiskNew {
 		
 		for(int i=0;i<threads;i++){
 			int ID=i;
-			ModelThreads[ID]=new ModelThreadDiskNew(BaseModel,rounds,ID,threads,File,minID,maxID,BRthread[ID].br,dataPreparer,verbose);
+			ModelThreads[ID]=new ModelThreadDisk(BaseModel,rounds,ID,threads,File,minID,maxID,BRthread[ID].br,dataPreparer,verbose);
 			ModelThreads[ID].location=location;
 			ModelThreads[ID].start();
 		}
