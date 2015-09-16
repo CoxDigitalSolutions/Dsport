@@ -2,10 +2,6 @@ package models;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import FrameWork.Random;
 import FrameWork.UtilMath;
 
@@ -23,8 +19,6 @@ public class FieldAwereFactorizationMachine extends BaseModel implements java.io
 	public Random random = new Random();
 	public float L1=0;
 	public float L2=0;
-	boolean disabled=false;
-	public int dropout=1;
 
 
 	public float predict(int [] FeatureVector){
@@ -36,29 +30,12 @@ public class FieldAwereFactorizationMachine extends BaseModel implements java.io
 		}
 
 		float prediction=predictFactors(FeatureVector,FieldVector);
-		return UtilMath.sigmoid(prediction);
+		
+		return CostFunction.Activation(prediction);
 	}
 	
-	public int [] GetList(int devide){
-		List<Integer> list=new ArrayList<Integer>();
-		for(int i=0;i<factorCount;i++){
-			list.add(i);
-		}
-		Collections.shuffle(list);
-		int [] UsedFactorList=new int[factorCount/devide];
-
-		for(int i=0;i<UsedFactorList.length;i++){
-			UsedFactorList[i]=list.get(i);
-		}
-		return UsedFactorList;
-	}
 	
 	public float  Train(float RealValue, int [] FeatureVector, int weight){
-		if(RealValue==0){
-			RealValue=-1;
-		}else if(RealValue>0){
-			RealValue=1;
-		}
 		int [] feildSum=new int[fieldCount];
 		int[] FieldVector=new int[FeatureVector.length];
 		for(int i=0;i<FieldVector.length;i++){
@@ -68,24 +45,17 @@ public class FieldAwereFactorizationMachine extends BaseModel implements java.io
 
 		
 		float prediction=predictFactors(FeatureVector,FieldVector);
+
+		prediction=CostFunction.Activation(prediction);
 		
-		float t=prediction;
+		float Error=CostFunction.CalculateError(prediction, RealValue);
 		
-		float expnyt=(float) UtilMath.exp(-RealValue*t);
-		
-		float kappa=(float) (-RealValue*expnyt/(1+expnyt));
-	
-		prediction=UtilMath.sigmoid(prediction);
-		
-		Update(FeatureVector,FieldVector,kappa,feildSum);
+		Update(FeatureVector,FieldVector,Error,feildSum);
 		
 		return prediction;
 	}
 
-	private void Update(int[] FeatureVector, int [] FieldVector,float kappa,int [] feildSum){
-
-
-
+	private void Update(int[] FeatureVector, int [] FieldVector,float Error,int [] feildSum){
 		for(int i=0;i<FeatureVector.length;i++){
 			for(int f=i+1;f<FeatureVector.length;f++){
 				if(FieldVector[f]==FieldVector[i]){
@@ -111,8 +81,8 @@ public class FieldAwereFactorizationMachine extends BaseModel implements java.io
 					if(T2<0){
 						sign2=-1;
 					}
-					float g1= kappa*T2+L1*T1+L2*T1*T1*sign1;
-					float g2= kappa*T1+L1*T2+L2*T2*T2*sign2;
+					float g1= Error*T2+L1*T1+L2*T1*T1*sign1;
+					float g2= Error*T1+L1*T2+L2*T2*T2*sign2;
 					
 					float T1g=F1g[j]+g1*g1;
 					float T2g=F2g[j]+g2*g2;

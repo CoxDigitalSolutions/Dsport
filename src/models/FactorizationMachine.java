@@ -19,7 +19,7 @@ public class FactorizationMachine extends BaseModel implements java.io.Serializa
 		
 		prediction+=FactorResult.prediction;
 		
-		return UtilMath.sigmoid(prediction);
+		return CostFunction.Activation(prediction);
 	}
 	
 	public float  Train(float RealValue, int [] FeatureVector, int weight){
@@ -29,9 +29,9 @@ public class FactorizationMachine extends BaseModel implements java.io.Serializa
 		
 		prediction+=FactorResult.prediction;
 		
-		prediction=UtilMath.sigmoid(prediction);
+		prediction=CostFunction.Activation(prediction);
 		
-		float Error=prediction-RealValue;
+		float Error=CostFunction.CalculateError(prediction, RealValue);
 		
 		updateInputLayer(FeatureVector,Error,weight);
 		updateFactors(FeatureVector,Error,weight,FactorResult.sum);

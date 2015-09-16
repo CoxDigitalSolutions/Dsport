@@ -36,12 +36,15 @@ public class FTRL  extends BaseModel implements java.io.Serializable{
     
     public float predict(int [] FeatureVector){
     	FeatureVector=features(FeatureVector);
-    	return predictProba(FeatureVector);
+    	float prediction=predictProba(FeatureVector);
+    	prediction=CostFunction.Activation(prediction);
+    	return prediction;
     }
     
     public float Train(float RealValue, int [] FeatureVector, int weight){
     	FeatureVector=features(FeatureVector);
     	float prediction= predictProba(FeatureVector);
+    	prediction=CostFunction.Activation(prediction);
     	update(FeatureVector,prediction,RealValue);
     	return prediction;
     }
@@ -60,11 +63,11 @@ public class FTRL  extends BaseModel implements java.io.Serializable{
 
             wTx += w[xi];
         }
-        return UtilMath.sigmoid(wTx);
+        return wTx;
     }
     
     public void update(int[] x, float p, float y) {
-        float gi = p - y;
+        float gi = CostFunction.CalculateError(p,y);
         float g2 = gi * gi;
 
         for (int i = 0; i < x.length; ++i) {
