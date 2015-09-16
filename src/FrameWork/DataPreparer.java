@@ -1,4 +1,4 @@
-package FrameWork;
+package frameWork;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

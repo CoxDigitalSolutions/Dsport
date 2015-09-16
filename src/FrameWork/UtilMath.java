@@ -1,4 +1,4 @@
-package FrameWork;
+package frameWork;
 
 public class UtilMath {
 	public static float sigmoid(float value){

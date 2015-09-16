@@ -1,6 +1,6 @@
 package models;
 
-import FrameWork.UtilMath;
+import frameWork.UtilMath;
 
 
 public class FactorizationMachine extends BaseModel implements java.io.Serializable{

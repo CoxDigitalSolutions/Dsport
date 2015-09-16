@@ -2,7 +2,7 @@ package models;
 
 import java.util.Objects;
 
-import FrameWork.UtilMath;
+import frameWork.UtilMath;
 
 public class FTRL  extends BaseModel implements java.io.Serializable{
 	

@@ -1,4 +1,4 @@
-package FrameWork;
+package frameWork;
 
 public class CostFunctions {
 	public int Type=1;

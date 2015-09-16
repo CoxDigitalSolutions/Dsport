@@ -1,4 +1,4 @@
-package FrameWork;
+package frameWork;
 
 /**
  * @author Matthew Jackson - Original Author

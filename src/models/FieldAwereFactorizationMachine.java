@@ -2,8 +2,9 @@ package models;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import FrameWork.Random;
-import FrameWork.UtilMath;
+
+import frameWork.Random;
+import frameWork.UtilMath;
 
 public class FieldAwereFactorizationMachine extends BaseModel implements java.io.Serializable{
 	/**
