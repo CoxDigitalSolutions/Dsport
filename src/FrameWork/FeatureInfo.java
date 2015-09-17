@@ -72,7 +72,7 @@ public class FeatureInfo implements java.io.Serializable {
 		int Result=0;
 		if(MainCounterSorted.contains(RawFeature)){
 			Integer ID=MainCounterSorted.get(RawFeature);
-			if(ID<maxID){
+			if(ID<=maxID){
 				Result=ID;
 			}
 		}
@@ -82,7 +82,7 @@ public class FeatureInfo implements java.io.Serializable {
 	public int GetProcessedFeature(String Feature){
 		int Result=0;
 		int ID=Integer.parseInt(Feature);
-		if(ID<maxID){
+		if(ID<=maxID){
 			Result=ID;
 		}
 
