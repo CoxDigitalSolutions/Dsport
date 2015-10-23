@@ -53,6 +53,7 @@ public class FeatureInfo implements java.io.Serializable {
 	
 	public void PrepareFeatures(int minSmoothingLimit){
 		for (Map.Entry<String, Integer> entry : MainCounter.entrySet()) {
+			System.out.println(entry.getValue());
 			if(minSmoothingLimit>entry.getValue()){
 				//find a way to remove this entry later?
 				//MainCounter.remove(entry.getKey());
@@ -93,6 +94,7 @@ public class FeatureInfo implements java.io.Serializable {
 		for (Map.Entry<Integer, String> entry : desSortedMap.entrySet()) {
 			maxID=MainCounterSorted.get(entry.getValue());
 			if(entry.getKey()<SmoothingLimit){
+				
 				//maxID=MainCounterSorted.get(entry.getValue());
 				break;
 			}
@@ -106,7 +108,7 @@ public class FeatureInfo implements java.io.Serializable {
 		return maxID;
 	}
 	
-	class Descending implements Comparator<Integer> , java.io.Serializable{
+	public class Descending implements Comparator<Integer> , java.io.Serializable{
 	    /**
 		 * 
 		 */

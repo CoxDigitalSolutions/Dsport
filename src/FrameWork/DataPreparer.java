@@ -14,6 +14,7 @@ public class DataPreparer implements java.io.Serializable{
 	int [] ColumnSizes;
 	int [] usedFeatures;
 	public  int [] Ignore;
+	public TargetSummary TargetSummary=new TargetSummary();
 	
 	public void init(int FeatureCount){
 		FeatureInfo=new FeatureInfo[FeatureCount];
@@ -164,7 +165,6 @@ public class DataPreparer implements java.io.Serializable{
 			}
 			writer.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return TotalFeatureCount;
