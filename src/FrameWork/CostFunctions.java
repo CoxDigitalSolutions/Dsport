@@ -8,6 +8,8 @@ public class CostFunctions {
 			return UtilMath.sigmoid(prediction);
 		}else if(Type==2){
 			return prediction;
+		}else if(Type==3){
+			return prediction;
 		}else{
 			return 0.0F;
 		}
@@ -19,6 +21,16 @@ public class CostFunctions {
 			return prediction-RealValue;
 		}else if(Type==2){
 			return prediction-RealValue;
+		}else if(Type==3){
+			float RV=(float) Math.exp(RealValue*6.8060355F+3.8286414F);
+			float P=(float) Math.exp(prediction*6.8060355F+3.8286414F);
+			float cost=((P-RV)/RV)*((P-RV)/RV);
+			if(P<RV){
+				cost=cost*-1;
+			}
+
+			
+			return cost;
 		}else{
 			return 0.0F;
 		}

@@ -8,12 +8,12 @@ public class DataPreparer implements java.io.Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	FeatureInfo[] FeatureInfo;
+	public FeatureInfo[] FeatureInfo;
 	String Delimiter=",";
 	String SubDelimiter="\t";
 	int [] ColumnSizes;
 	int [] usedFeatures;
-	public  int [] Ignore;
+
 	public TargetSummary TargetSummary=new TargetSummary();
 	
 	public void init(int FeatureCount){
@@ -21,6 +21,10 @@ public class DataPreparer implements java.io.Serializable{
 		for(int i=0;i<FeatureInfo.length;i++){
 			FeatureInfo[i]=new FeatureInfo();
 		}
+	}
+	
+	public void Finalize(){
+		TargetSummary.Finalize();
 	}
 	
 	public void Update(String [] RawFeatures){
@@ -80,6 +84,7 @@ public class DataPreparer implements java.io.Serializable{
 	}
 	
 	public int [] GetFeatures(String FeaturesString){
+		//System.out.println(FeaturesString);
 		String [] values=FeaturesString.split(Delimiter);
 		
 		if(values.length!=FeatureInfo.length){
@@ -92,17 +97,20 @@ public class DataPreparer implements java.io.Serializable{
 		int Position=0;
 		int counter=0;
 		for(int i=0;i<usedFeatures.length;i++){
-			if(values[i].contains(SubDelimiter)){
-				String [] valuesSub=values[i].split(SubDelimiter);
+			if(values[usedFeatures[i]].contains(SubDelimiter)){
+			//if(values[i].contains(SubDelimiter)){
+				
+				System.out.println("got subDelimiter!!!");
+				String [] valuesSub=values[usedFeatures[i]].split(SubDelimiter);
+				//String [] valuesSub=values[i].split(SubDelimiter);
 				int Added=0;
 				for(int j=0;j<valuesSub.length;j++){
+					
 					int temp=Position+FeatureInfo[usedFeatures[i]].GetProcessedFeature(valuesSub[j]);
 					if(temp!=Position){
-						if(Ignore==null || Ignore[temp]!=1){
 							FeatureList[counter]=temp;
 							counter++;
 							Added++;
-						}
 					}
 				}
 				if(Added==0){
@@ -111,16 +119,17 @@ public class DataPreparer implements java.io.Serializable{
 				}
 				
 			}else{
-				int temp=Position+FeatureInfo[usedFeatures[i]].GetProcessedFeature(values[i]);
-				if(Ignore==null || Ignore[temp]!=1){
-					FeatureList[counter]=temp;
-				}else{
-					FeatureList[counter]=Position;
-				}
+				int temp=Position+FeatureInfo[usedFeatures[i]].GetProcessedFeature(values[usedFeatures[i]]);
+				//int temp=Position+FeatureInfo[usedFeatures[i]].GetProcessedFeature(values[i]);
+				//System.out.println(usedFeatures[i]+" val="+values[usedFeatures[i]]+"  temp="+temp+ "  pos=" + Position);
+
+				FeatureList[counter]=temp;
+
 				counter++;
 			}
 			
 			Position+=FeatureInfo[usedFeatures[i]].GetMaxID()+1;
+
 		}
 		
 		int [] FinalFeatureList=new int [counter];

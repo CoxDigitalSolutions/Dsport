@@ -19,7 +19,7 @@ public class FeatureInfo implements java.io.Serializable {
 	//name, ordered ID
 	public THashMap<String,Integer> MainCounterSorted = new THashMap<String,Integer>();
 	//ordered count, name
-	Map<Integer, String> desSortedMap = new TreeMap<Integer, String>(new Descending());
+	Map<Integer, String[]> desSortedMap = new TreeMap<Integer, String[]>(new Descending());
 
 	public int SmoothingLimit=100;
 	private int maxID=Integer.MAX_VALUE;
@@ -36,7 +36,7 @@ public class FeatureInfo implements java.io.Serializable {
 		try {
 			PrintWriter writer = new PrintWriter(filename);
 
-			for (Map.Entry<Integer, String> entry : desSortedMap.entrySet()) {
+			for (Map.Entry<Integer, String[]> entry : desSortedMap.entrySet()) {
 				maxID=MainCounterSorted.get(entry.getValue());
 				writer.write(entry.getValue()+"@@"+(maxID+Position)+"\n");
 				if(entry.getKey()<SmoothingLimit){
@@ -53,19 +53,34 @@ public class FeatureInfo implements java.io.Serializable {
 	
 	public void PrepareFeatures(int minSmoothingLimit){
 		for (Map.Entry<String, Integer> entry : MainCounter.entrySet()) {
-			System.out.println(entry.getValue());
+
 			if(minSmoothingLimit>entry.getValue()){
 				//find a way to remove this entry later?
 				//MainCounter.remove(entry.getKey());
 				continue;
 			}
-			desSortedMap.put(entry.getValue(), entry.getKey());
+			if(desSortedMap.containsKey(entry.getValue())){
+				String [] currStringArr=desSortedMap.get(entry.getValue());
+				String [] tStringArr=new String[currStringArr.length+1];
+				for(int i=0;i<currStringArr.length;i++){
+					tStringArr[i]=currStringArr[i];
+				}
+				tStringArr[tStringArr.length-1]=entry.getKey();
+				desSortedMap.put(entry.getValue(), tStringArr);
+			}else{
+				String [] tStringArr=new String[1];
+				tStringArr[0]=entry.getKey();
+				desSortedMap.put(entry.getValue(), tStringArr);
+			}
 		}
 		
 		int count=0;
-		for (Map.Entry<Integer, String> entry : desSortedMap.entrySet()) {
-			count++;
-			MainCounterSorted.put(entry.getValue(), count);
+		for (Map.Entry<Integer, String[]> entry : desSortedMap.entrySet()) {
+			String [] tStringArr=entry.getValue();
+			for(int i=0;i<entry.getValue().length;i++){
+				count++;
+				MainCounterSorted.put(tStringArr[i], count);
+			}
 		}
 	}
 	
@@ -91,12 +106,15 @@ public class FeatureInfo implements java.io.Serializable {
 	}
 	
 	public int SetMaxID(){
-		for (Map.Entry<Integer, String> entry : desSortedMap.entrySet()) {
-			maxID=MainCounterSorted.get(entry.getValue());
-			if(entry.getKey()<SmoothingLimit){
-				
-				//maxID=MainCounterSorted.get(entry.getValue());
-				break;
+		for (Map.Entry<Integer, String[]> entry : desSortedMap.entrySet()) {
+			String [] tStringArr=entry.getValue();
+			for(int i=0;i<tStringArr.length;i++){
+				maxID=MainCounterSorted.get(tStringArr[i]);
+				if(entry.getKey()<SmoothingLimit){
+					
+					//maxID=MainCounterSorted.get(entry.getValue());
+					break;
+				}
 			}
 		}
 		

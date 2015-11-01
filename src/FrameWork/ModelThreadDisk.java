@@ -53,8 +53,6 @@ public class ModelThreadDisk extends Thread{
 	  float minLog=(float) (1*Math.pow(10, -15));
 
 	  AdTotCountRound=0;
-	  int True=0;
-	  int Total=0;
 
 	  int Size=maxID-minID;
 	  int Pos=(int) minID+(Size/TotalThreads*ID);
@@ -83,15 +81,11 @@ public class ModelThreadDisk extends Thread{
     		continue;
     	}
 
-    	
     	if(rounds*temp<i){
     		if(verbose){
 	    		System.out.println("Thread " + ID + " :" + Math.round(temp*100) 
 	    				+"%"+" RoundCost="+RoundCost/AdTotCountRound);
-	    		System.out.println("True=" + True + ", Total="+ Total);
     		}
-			True=0;
-			Total=0;
 		
     		temp+=PrintTime;
     		RoundCost=0;
@@ -108,19 +102,22 @@ public class ModelThreadDisk extends Thread{
 		float RealValue=Float.parseFloat(values[1]);
 		
 		float result=0;
-		try{
+		//try{
 			if(location.length()>0){
 
 				result = BaseModel.predict(tempLFV);
-				writer.write(values[1]+"\t"+values[2]+","+result+"\n");
+				writer.write(values[1]+","+result+"\n");
 			}else{
 				result = BaseModel.Train(RealValue ,tempLFV,weight);
 			}
-		}  catch (Exception e) {
-			System.out.println("Error in ModelThreadDiskNew:"+e.getMessage()+"\n"+e.getStackTrace());
+		/*}  catch (Exception e) {
+			
+			System.out.println("Error in ModelThreadDiskNew:");
+			System.out.println(e.getMessage());
+			System.out.println(e.getStackTrace());
 			e.printStackTrace();
 			continue;
-		}
+		}*/
 
 		if(RealValue==-1){
 			RealValue=0;
@@ -142,13 +139,10 @@ public class ModelThreadDisk extends Thread{
 			}
 		}
 		
-		if(result<=1.001){
-			if(RealValue==1){
-				True++;
-			}
-			Total++;
-		}
 		
+		float tempNum=(result-RealValue);
+
+		tempC=tempNum*tempNum;
 		RoundCost-=tempC;
 		
 		AdTotCountRound++;
