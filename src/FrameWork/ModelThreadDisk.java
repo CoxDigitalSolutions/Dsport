@@ -92,7 +92,6 @@ public class ModelThreadDisk extends Thread{
     		AdTotCountRound=0;
     	}
 
-		int weight=1;
 		
 		String [] values=sCurrentLine.split(":");
 
@@ -108,7 +107,7 @@ public class ModelThreadDisk extends Thread{
 				result = BaseModel.predict(tempLFV);
 				writer.write(values[1]+","+result+"\n");
 			}else{
-				result = BaseModel.Train(RealValue ,tempLFV,weight);
+				result = BaseModel.Train(RealValue ,tempLFV);
 			}
 		/*}  catch (Exception e) {
 			

@@ -15,42 +15,42 @@ public class LogisticRegression extends BaseModel implements java.io.Serializabl
 		return UtilMath.sigmoid(prediction);
 	}
 	
-	public float  Train(float RealValue, float [] FeatureVector, int weight){
+	public float  Train(float RealValue, float [] FeatureVector){
 		float prediction=predictInputLayer(FeatureVector);
 		
 		prediction=UtilMath.sigmoid(prediction);
 		
 		float Error=prediction-RealValue;
 		
-		updateInputLayer(FeatureVector,Error,weight);
+		updateInputLayer(FeatureVector,Error);
 
 		return prediction;
 	}
 
-	public float  Train(float RealValue, float learningRate, int [] FeatureVector, int weight){
+	public float  Train(float RealValue, float learningRate, int [] FeatureVector){
 		float prediction=predictInputLayer(FeatureVector);
 		
 		prediction=UtilMath.sigmoid(prediction);
 		
 		float Error=prediction-RealValue;
 		
-		updateInputLayer(FeatureVector,Error,weight);
+		updateInputLayer(FeatureVector,Error);
 
 		return prediction;
 	}
 
 	
-	private void updateInputLayer(int[] FeatureVector, float Error, float weight){
+	private void updateInputLayer(int[] FeatureVector, float Error){
 		//inputLayer[0]-=learningRate*Error*weight;
 		for(int j=0;j<FeatureVector.length;j++){
-			inputLayer[FeatureVector[j]+1]-=learningRate*Error*weight;
+			inputLayer[FeatureVector[j]+1]-=learningRate*Error;
 		}
 	}
 	
-	private void updateInputLayer(float[] FeatureVector, float Error, float weight){
+	private void updateInputLayer(float[] FeatureVector, float Error){
 		//inputLayer[0]-=learningRate*Error*weight;
 		for(int j=1;j<inputLayer.length;j++){
-			inputLayer[j]-=learningRate*Error*weight*FeatureVector[j-1];
+			inputLayer[j]-=learningRate*Error*FeatureVector[j-1];
 		}
 	}
 
@@ -80,7 +80,7 @@ public class LogisticRegression extends BaseModel implements java.io.Serializabl
 	}
 
 	@Override
-	public float Train(float RealValue, int[] FeatureVector, int weight) {
+	public float Train(float RealValue, int[] FeatureVector) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

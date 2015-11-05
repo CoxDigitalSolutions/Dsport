@@ -41,7 +41,7 @@ public class FTRL  extends BaseModel implements java.io.Serializable{
     	return prediction;
     }
     
-    public float Train(float RealValue, int [] FeatureVector, int weight){
+    public float Train(float RealValue, int [] FeatureVector){
     	FeatureVector=features(FeatureVector);
     	float prediction= predictProba(FeatureVector);
     	prediction=CostFunction.Activation(prediction);

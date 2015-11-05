@@ -2,7 +2,7 @@ package models;
 
 import frameWork.DataPreparer;
 
-public class DecisionTree  extends BaseModel implements java.io.Serializable{
+public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 	/**
 	 * 
 	 */
@@ -12,10 +12,9 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;
 	public DataPreparer dataPreparer;
 	public TreeNode root;
-	public int minLeafCount=1;
+	public int minLeafCount=500;
 	public int maxDepth=6;
 	public int CurrentDepth=0;
-	int [] fields;
 	
 	@Override
 	public float predict(int[] FeatureVector) {
@@ -23,9 +22,9 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 		return root.predict(FeatureVector);
 	}
 
-
-	public float Train(float RealValue, int[] FeatureVector,float residual) {
-		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
+	@Override
+	public float Train(float RealValue, int[] FeatureVector) {
+		root.UpdateCatFeatures(FeatureVector, dataPreparer.TargetSummary.ValueToPosition(RealValue),0.0F);
 		return 0;
 	}
 	
@@ -35,7 +34,6 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 		root.minLeafCount=minLeafCount;
 		root.InitCategorical(inputNodes, this.dataPreparer.TargetSummary.desSortedMap.size());
 		root.dataPreparer=this.dataPreparer;
-		root.fields=fields;
 	}
 
 	public int CalculateCost() {
@@ -45,12 +43,5 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 			return -1;
 		}
 		return 1;
-	}
-
-
-	@Override
-	public float Train(float RealValue, int[] FeatureVector) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }

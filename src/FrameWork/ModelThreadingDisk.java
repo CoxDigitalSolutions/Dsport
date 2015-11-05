@@ -36,6 +36,6 @@ public class ModelThreadingDisk {
 			cost+=ModelThreads[ID].RoundCost;
 			count+=ModelThreads[ID].AdTotCountRound;
 		}
-		System.out.println("Threads completed: cost="+cost/count);
+		//System.out.println("Threads completed: cost="+cost/count);
 	}
 }

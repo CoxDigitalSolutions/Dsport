@@ -56,7 +56,7 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 	 */
 
 	
-	public float  Train(float RealValue, int [] FeatureVector, int weight){
+	public float  Train(float RealValue, int [] FeatureVector){
 
 		
 		float[] hiddenResult=predictInputLayer(FeatureVector);
@@ -67,9 +67,9 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 		
 		float ErrorsEnd=prediction-RealValue;
 		
-		float [] HiddenError=updateOutputLayer(  weight, ErrorsEnd,hiddenResult);
+		float [] HiddenError=updateOutputLayer(   ErrorsEnd,hiddenResult);
 		
-		updateInputLayer(FeatureVector,HiddenError,weight);
+		updateInputLayer(FeatureVector,HiddenError);
 
 		return prediction;
 	}
@@ -103,7 +103,7 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 	 * @param HiddenError the error in the hidden layer
 	 * @param weight to decide the weighting of the sample
 	 */
-	private void updateInputLayer(int[] FeatureVector, float[] HiddenError, float weight){
+	private void updateInputLayer(int[] FeatureVector, float[] HiddenError){
 		for(int j=0;j<FeatureVector.length;j++){
 			float [] G=GinputLayer[FeatureVector[j]+1];
 			float [] A=AinputLayer[FeatureVector[j]+1];
@@ -112,7 +112,7 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 				
 				float Err=HiddenError[i];//+V[i]*0.0001F;
 
-				V[i]-=learningRate*Err*weight;
+				V[i]-=learningRate*Err;
 			}
 		}
 	}
@@ -127,13 +127,13 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 	 * @param hiddenResult results in the hidden layer
 	 * @return Errors in the hidden layer
 	 */
-	private float[] updateOutputLayer( float weight,float ErrorsEnd,float [] hiddenResult){
+	private float[] updateOutputLayer( float ErrorsEnd,float [] hiddenResult){
 		float [] HiddenError=new float [hiddenResult.length];
 		float[] G=GoutputLayer;
 		float[] A=AoutputLayer;
 		float[] V=outputLayer;
 		for(int i=1;i<outputLayer.length;i++){
-			outputLayer[i]-=learningRate*ErrorsEnd*hiddenResult[i-1]*weight/1000;
+			outputLayer[i]-=learningRate*ErrorsEnd*hiddenResult[i-1]/1000;
 			float H=hiddenResult[i-1];
 			HiddenError[i-1]+=H*H*(1-H)*(1-H)*outputLayer[i]*ErrorsEnd;
 		}

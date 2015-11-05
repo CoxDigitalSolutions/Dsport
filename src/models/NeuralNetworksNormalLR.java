@@ -75,7 +75,7 @@ public class NeuralNetworksNormalLR extends BaseModel implements java.io.Seriali
 	 */
 
 	
-	public float  Train(float RealValue, int [] FeatureVector, int weight){
+	public float  Train(float RealValue, int [] FeatureVector){
 		int EndNeuron=0;
 		if(EndNodePosition==-1){
 			EndNeuron=FeatureVector[FeatureVector.length-1]-this.OffSetEndNode;
@@ -105,9 +105,9 @@ public class NeuralNetworksNormalLR extends BaseModel implements java.io.Seriali
 		
 		float ErrorsEnd=prediction-RealValue;
 		
-		float [] HiddenError=updateOutputLayer( EndNeuron,  weight, ErrorsEnd,hiddenResult);
+		float [] HiddenError=updateOutputLayer( EndNeuron, ErrorsEnd,hiddenResult);
 		
-		updateInputLayer(shortFeatureVector,HiddenError,weight);
+		updateInputLayer(shortFeatureVector,HiddenError);
 
 		return prediction;
 	}
@@ -141,7 +141,7 @@ public class NeuralNetworksNormalLR extends BaseModel implements java.io.Seriali
 	 * @param HiddenError the error in the hidden layer
 	 * @param weight to decide the weighting of the sample
 	 */
-	private void updateInputLayer(int[] FeatureVector, float[] HiddenError, float weight){
+	private void updateInputLayer(int[] FeatureVector, float[] HiddenError){
 		for(int j=0;j<FeatureVector.length;j++){
 			float [] G=GinputLayer[FeatureVector[j]+1];
 			float [] A=AinputLayer[FeatureVector[j]+1];
@@ -150,7 +150,7 @@ public class NeuralNetworksNormalLR extends BaseModel implements java.io.Seriali
 				
 				float Err=HiddenError[i];//+V[i]*0.0001F;
 
-				V[i]-=learningRate*Err*weight;
+				V[i]-=learningRate*Err;
 			}
 		}
 	}
@@ -165,13 +165,13 @@ public class NeuralNetworksNormalLR extends BaseModel implements java.io.Seriali
 	 * @param hiddenResult results in the hidden layer
 	 * @return Errors in the hidden layer
 	 */
-	private float[] updateOutputLayer(int EndNeuron, float weight,float ErrorsEnd,float [] hiddenResult){
+	private float[] updateOutputLayer(int EndNeuron,float ErrorsEnd,float [] hiddenResult){
 		float [] HiddenError=new float [hiddenResult.length];
 		float[] G=GoutputLayer[EndNeuron];
 		float[] A=AoutputLayer[EndNeuron];
 		float[] V=outputLayer[EndNeuron];
 		for(int i=1;i<outputLayer[EndNeuron].length;i++){
-			outputLayer[EndNeuron][i]-=learningRate*ErrorsEnd*hiddenResult[i-1]*weight/1000;
+			outputLayer[EndNeuron][i]-=learningRate*ErrorsEnd*hiddenResult[i-1]/1000;
 			float H=hiddenResult[i-1];
 			HiddenError[i-1]+=H*H*(1-H)*(1-H)*outputLayer[EndNeuron][i]*ErrorsEnd;
 		}

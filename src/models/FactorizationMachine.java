@@ -22,7 +22,7 @@ public class FactorizationMachine extends BaseModel implements java.io.Serializa
 		return CostFunction.Activation(prediction);
 	}
 	
-	public float  Train(float RealValue, int [] FeatureVector, int weight){
+	public float  Train(float RealValue, int [] FeatureVector){
 		float prediction=predictInputLayer(FeatureVector);
 		
 		FactorResult FactorResult=predictFactors(FeatureVector);
@@ -33,25 +33,25 @@ public class FactorizationMachine extends BaseModel implements java.io.Serializa
 		
 		float Error=CostFunction.CalculateError(prediction, RealValue);
 		
-		updateInputLayer(FeatureVector,Error,weight);
-		updateFactors(FeatureVector,Error,weight,FactorResult.sum);
+		updateInputLayer(FeatureVector,Error);
+		updateFactors(FeatureVector,Error,FactorResult.sum);
 
 		return prediction;
 	}
 
 	
-	private void updateInputLayer(int[] FeatureVector, float Error, float weight){
-		inputLayer[0]-=learningRate*Error*weight;
+	private void updateInputLayer(int[] FeatureVector, float Error){
+		inputLayer[0]-=learningRate*Error;
 		for(int j=0;j<FeatureVector.length;j++){
-			inputLayer[FeatureVector[j]+1]-=learningRate*Error*weight;
+			inputLayer[FeatureVector[j]+1]-=learningRate*Error;
 		}
 	}
 	
-	private void updateFactors(int[] FeatureVector, float Error, float weight, float [] sum){
+	private void updateFactors(int[] FeatureVector, float Error,  float [] sum){
 		for(int j=0;j<factorCount;j++){
 			for(int i=0;i<FeatureVector.length;i++){
 				float grad=sum[j] * FeatureVector[i] - Factors[FeatureVector[i]][j] * FeatureVector[i] * FeatureVector[i];
-				Factors[FeatureVector[i]][j]-=learningRate * Error * grad * weight;
+				Factors[FeatureVector[i]][j]-=learningRate * Error * grad ;
 			}
 		}
 	}

@@ -54,7 +54,7 @@ public class FieldAwereFactorizationMachine2 extends BaseModel implements java.i
 	}
 	
 	
-	public float  Train(float RealValue, int [] FeatureVector, int weight){
+	public float  Train(float RealValue, int [] FeatureVector){
 		int [] feildSum=new int[fieldCount];
 		int[] FieldVector=new int[FeatureVector.length];
 		for(int i=0;i<FieldVector.length;i++){
