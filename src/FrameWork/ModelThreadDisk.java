@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
+import Boosting.Booster;
 import models.BaseModel;
 
 public class ModelThreadDisk extends Thread{
 	
    private BaseModel BaseModel;
+   
 
    private int rounds;
    private int ID;
@@ -22,6 +24,7 @@ public class ModelThreadDisk extends Thread{
    private DataPreparer dataPreparer;
    boolean verbose=true;
    public String location="";
+   public Booster booster;
 
 
    
@@ -107,7 +110,13 @@ public class ModelThreadDisk extends Thread{
 				result = BaseModel.predict(tempLFV);
 				writer.write(values[1]+","+result+"\n");
 			}else{
-				result = BaseModel.Train(RealValue ,tempLFV);
+				if(booster==null){
+					result = BaseModel.Train(RealValue ,tempLFV);
+				}else{
+					// need to make sure Pos is correct
+					float residual=booster.GetLatestPrediction(Pos, sCurrentLine);
+					result = BaseModel.TrainBoosted(RealValue, residual, tempLFV);
+				}
 			}
 		/*}  catch (Exception e) {
 			

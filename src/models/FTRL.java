@@ -139,4 +139,16 @@ public class FTRL  extends BaseModel implements java.io.Serializable{
         }
         return ix;
     }
+
+	@Override
+	public int StopCalcuations() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

@@ -191,5 +191,17 @@ public class FieldAwereFactorizationMachine2 extends BaseModel implements java.i
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public int StopCalcuations() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }

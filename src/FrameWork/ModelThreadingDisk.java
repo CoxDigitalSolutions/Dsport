@@ -2,11 +2,13 @@ package frameWork;
 
 import java.io.BufferedReader;
 
+import Boosting.Booster;
 import models.BaseModel;
 
 public class ModelThreadingDisk {
 	public boolean verbose= false;
-	   public String location="";
+   public String location="";
+   public Booster booster;
 	
 	public void train(BaseModel BaseModel,int rounds,int threads, String File,int minID,int maxID,DataPreparer dataPreparer) throws InterruptedException{
 		ModelThreadDisk[] ModelThreads= new ModelThreadDisk[threads];
@@ -25,6 +27,7 @@ public class ModelThreadingDisk {
 			int ID=i;
 			ModelThreads[ID]=new ModelThreadDisk(BaseModel,rounds,ID,threads,File,minID,maxID,BRthread[ID].br,dataPreparer,verbose);
 			ModelThreads[ID].location=location;
+			ModelThreads[ID].booster=booster;
 			ModelThreads[ID].start();
 		}
 		

@@ -217,6 +217,18 @@ public class NeuralNetworksNormalLR2 extends BaseModel implements java.io.Serial
 				outputLayer[i]=UtilMath.random()*0.1F;
 		}
 	}
+
+	@Override
+	public int StopCalcuations() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 

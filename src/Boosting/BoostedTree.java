@@ -1,6 +1,8 @@
-package models;
+package Boosting;
 
 import frameWork.DataPreparer;
+import models.BaseModel;
+import models.DecisionTree;
 
 public class BoostedTree  extends BaseModel implements java.io.Serializable{
 	/**
@@ -24,7 +26,7 @@ public class BoostedTree  extends BaseModel implements java.io.Serializable{
 			TreeList[i].minLeafCount=minLeafCount;
 			TreeList[i].maxDepth=maxDepth;
 			TreeList[i].fields=fields;
-			TreeList[i].Init(dataPreparer,InputTotal);
+			TreeList[i].Init(InputTotal);
 		}
 	}
 	
@@ -38,7 +40,7 @@ public class BoostedTree  extends BaseModel implements java.io.Serializable{
 	}
 	
 	public int CalculateCost() {
-		int cost=TreeList[currentTree].CalculateCost();
+		int cost=TreeList[currentTree].StopCalcuations();
 
 		if(cost<0 ){
 			currentTree++;
@@ -60,6 +62,18 @@ public class BoostedTree  extends BaseModel implements java.io.Serializable{
 			prediction+=thisPrediction;
 		}
 		return prediction;
+	}
+
+	@Override
+	public int StopCalcuations() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

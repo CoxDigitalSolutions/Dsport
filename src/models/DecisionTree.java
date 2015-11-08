@@ -10,12 +10,11 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	
 	
 	private static final long serialVersionUID = 1L;
-	public DataPreparer dataPreparer;
 	public TreeNode root;
 	public int minLeafCount=1;
 	public int maxDepth=6;
 	public int CurrentDepth=0;
-	int [] fields;
+	public int [] fields;
 	
 	@Override
 	public float predict(int[] FeatureVector) {
@@ -29,16 +28,14 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 		return 0;
 	}
 	
-	public void Init(DataPreparer dataPreparer, int inputNodes) {
+	public void Init(int inputNodes) {
 		root=new TreeNode();
-		this.dataPreparer=dataPreparer;
 		root.minLeafCount=minLeafCount;
-		root.InitCategorical(inputNodes, this.dataPreparer.TargetSummary.desSortedMap.size());
-		root.dataPreparer=this.dataPreparer;
+		root.InitCategorical(inputNodes);
 		root.fields=fields;
 	}
 
-	public int CalculateCost() {
+	public int StopCalcuations() {
 		int cost=root.CalculateCost();
 		CurrentDepth++;
 		if(cost<0 || maxDepth<=CurrentDepth){
@@ -50,6 +47,15 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 
 	@Override
 	public float Train(float RealValue, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
+
 		// TODO Auto-generated method stub
 		return 0;
 	}

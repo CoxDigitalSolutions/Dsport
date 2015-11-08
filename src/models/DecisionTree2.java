@@ -32,8 +32,7 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 		root=new TreeNode();
 		this.dataPreparer=dataPreparer;
 		root.minLeafCount=minLeafCount;
-		root.InitCategorical(inputNodes, this.dataPreparer.TargetSummary.desSortedMap.size());
-		root.dataPreparer=this.dataPreparer;
+		root.InitCategorical(inputNodes);
 	}
 
 	public int CalculateCost() {
@@ -43,5 +42,17 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 			return -1;
 		}
 		return 1;
+	}
+
+	@Override
+	public int StopCalcuations() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

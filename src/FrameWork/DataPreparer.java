@@ -83,6 +83,36 @@ public class DataPreparer implements java.io.Serializable{
 		return Result;
 	}
 	
+
+	
+	public byte [] GetPreparedByte(String [] RawFeatures){
+		String Result="";
+		for(int i=0;i<RawFeatures.length;i++){
+			if(RawFeatures[i].contains(SubDelimiter)){
+				String [] values=RawFeatures[i].split(SubDelimiter);
+				int added=0;
+				for(int j=0;j<values.length;j++){
+					int ReturnedFeature=FeatureInfo[i].GetPreparedFeature(values[j]);
+					if(ReturnedFeature!=0){
+						Result+=ReturnedFeature+SubDelimiter;
+						added++;
+					}
+				}
+				if(added==0){
+					Result+="0";
+				}else{
+					Result=Result.substring(0,Result.length()-1);
+				}
+			}else{
+				Result+=FeatureInfo[i].GetPreparedFeature(RawFeatures[i]);
+			}
+			Result+=",";
+		}
+		//remove last comma as it's not needed
+		Result=Result.substring(0,Result.length()-1);
+		return null;
+	}
+	
 	public int [] GetFeatures(String FeaturesString){
 		//System.out.println(FeaturesString);
 		String [] values=FeaturesString.split(Delimiter);
@@ -96,6 +126,7 @@ public class DataPreparer implements java.io.Serializable{
 		int [] FeatureList=new int [FeatureInfo.length+SubDelimiterCount];
 		int Position=0;
 		int counter=0;
+		
 		for(int i=0;i<usedFeatures.length;i++){
 			if(values[usedFeatures[i]].contains(SubDelimiter)){
 			//if(values[i].contains(SubDelimiter)){
