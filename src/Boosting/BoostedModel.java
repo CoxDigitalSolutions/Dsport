@@ -15,4 +15,10 @@ public class BoostedModel {
 		
 		return Result;
 	}
+	
+	public float predict(int [] Features, int [] Positions){
+		int [] tempLFV=dataPreparer.GetFeaturesFromInt(Features,Positions);
+		float Result=model.predict(tempLFV);
+		return Result;
+	}
 }

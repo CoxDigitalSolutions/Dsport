@@ -105,6 +105,16 @@ public class FeatureInfo implements java.io.Serializable {
 		return Result;
 	}
 	
+	public int GetProcessedFeatureInt(int Feature){
+		int Result=0;
+		int ID=Feature;
+		if(ID<=maxID){
+			Result=ID;
+		}
+
+		return Result;
+	}
+	
 	public int SetMaxID(){
 		for (Map.Entry<Integer, String[]> entry : desSortedMap.entrySet()) {
 			String [] tStringArr=entry.getValue();

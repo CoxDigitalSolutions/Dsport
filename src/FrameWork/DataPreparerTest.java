@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class DataPreparer implements java.io.Serializable{
+public class DataPreparerTest implements java.io.Serializable{
 	/**
 	 * 
 	 */
@@ -128,18 +128,18 @@ public class DataPreparer implements java.io.Serializable{
 	
 	public int AddMainValue(byte [] ByteWorking,int Bcount,int ReturnedFeature){
 
-		if(ReturnedFeature<Byte.MAX_VALUE){
+		if(ReturnedFeature<Byte.MAX_VALUE && false){
 			Bcount=appendBytesToByte(ByteWorking,DelimiterByteByte,Bcount);
 			byte [] val=UtilByte.ByteToBytes((byte) ReturnedFeature);
 			Bcount=appendBytesToBytes(ByteWorking,val,Bcount);
 			
-		}else if(ReturnedFeature<Short.MAX_VALUE){
+		}else if(ReturnedFeature<Short.MAX_VALUE  && false){
 			Bcount=appendBytesToByte(ByteWorking,DelimiterByteShort,Bcount);
 			byte [] val=UtilByte.ShortToBytes((short) ReturnedFeature);
 			Bcount=appendBytesToBytes(ByteWorking,val,Bcount);
 			
 		}else{
-			Bcount=appendBytesToByte(ByteWorking,DelimiterByteInt,Bcount);
+			//Bcount=appendBytesToByte(ByteWorking,DelimiterByteInt,Bcount);
 			byte [] val=UtilByte.IntToBytes(ReturnedFeature);
 			Bcount=appendBytesToBytes(ByteWorking,val,Bcount);
 		}
@@ -367,15 +367,37 @@ public class DataPreparer implements java.io.Serializable{
 
 		int [] FullFeatureSet=new int [FeatureCount];
 		int [] Positions=new int [FeatureCount];
-		int Feature=0;
+		int Fature=0;
 		int counter2=0;
 		
 
 		if(CheckUpdateBuffer(inChannel,buffer)==-1){
 			return null;
 		}
+		for(int i=0;i<FeatureCount;i++){
+			int val=BufferGetInt(inChannel,buffer);
 
-			
+			FullFeatureSet[counter2]=val;
+			Positions[counter2]=Fature;
+			counter2++;
+			Fature++;
+		}
+		
+		if(!buffer.hasRemaining()){
+			if(CheckUpdateBuffer(inChannel,buffer)==-1){
+				return null;
+			}
+		}
+		buffer.get();
+		
+
+		int [][] FinalResult=new int[3][];
+
+		FinalResult[1]=FullFeatureSet;
+		FinalResult[2]=Positions;
+		return FinalResult;
+		
+		/*
 		while (true){
 			if(CheckUpdateBuffer(inChannel,buffer)==-1){
 				return null;
@@ -397,9 +419,23 @@ public class DataPreparer implements java.io.Serializable{
 			}else if(b==DelimiterByteInt){
 				val=BufferGetInt(inChannel,buffer);
 			}else if(b==NewLineByte){
-					int [][] FinalResult=new int[2][];
-					FinalResult[0]=FullFeatureSet;
-					FinalResult[1]=Positions;
+					int [] FinalFeatureList=new int [counter];
+					for(int i=0;i<counter;i++){
+						FinalFeatureList[i]=FeatureList[i];
+					}
+					int [] FinalFullFeatureSet=new int [counter2];
+					for(int i=0;i<counter2;i++){
+						FinalFullFeatureSet[i]=FullFeatureSet[i];
+					}
+					
+					int [] FinalPositions=new int [counter2];
+					for(int i=0;i<counter2;i++){
+						FinalPositions[i]=Positions[i];
+					}
+					int [][] FinalResult=new int[3][];
+					FinalResult[0]=FinalFeatureList;
+					FinalResult[1]=FinalFullFeatureSet;
+					FinalResult[2]=FinalPositions;
 					return FinalResult;
 			}else if(b==SubDelimiterByteShort){
 				val=BufferGetShort(inChannel,buffer);
@@ -416,17 +452,27 @@ public class DataPreparer implements java.io.Serializable{
 				val=buffer.get();
 				sub=true;
 			}
-			FullFeatureSet[counter2]=val;
-			Positions[counter2]=Feature;
-			counter2++;
+			
 			if(!sub){
+				while(usedFeatures[usedFeature]<Fature && usedFeature<usedFeatures.length-1){
+					usedFeature++;
+				}
 				
-				
-				Feature++;
+				if(usedFeatures[usedFeature]==Fature){
+					
+					val=FeatureInfo[Fature].GetProcessedFeatureInt(val);
+					FeatureList[counter]=Position+val;
+					Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
+					counter++;
+				}
+				FullFeatureSet[counter2]=val;
+				Positions[counter2]=Fature;
+				counter2++;
+				Fature++;
 			}
 			
 		}
-		
+		*/
 	}
 	
 	public int [] GetFeaturesFromInt(int [] Features, int [] Positions){
@@ -435,20 +481,15 @@ public class DataPreparer implements java.io.Serializable{
 		int count=0;
 		int Position=0;
 		
-
-		
-		for(int i=0;i<Positions.length;i++){
-			if(usedFeatures[usedFeature]==Positions[i]){
-				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
-				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
-				count++;
-				continue;
-			}
-
+		for(int i=0;i<Features.length;i++){
 			while(usedFeatures[usedFeature]<Positions[i] && usedFeature<usedFeatures.length-1){
 				usedFeature++;
 			}
-
+			if(usedFeatures[usedFeature]==Positions[i]){
+				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
+				count++;
+				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
+			}
 		}
 		int [] Result=new int [count];
 		for(int i=0;i<count;i++){

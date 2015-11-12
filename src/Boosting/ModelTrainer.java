@@ -2,6 +2,7 @@ package Boosting;
 
 import frameWork.DataPreparer;
 import frameWork.ModelThreadingDisk;
+import frameWork.ModelThreadingDiskBinary;
 import models.BaseModel;
 
 public class ModelTrainer {
@@ -14,7 +15,7 @@ public class ModelTrainer {
 	public String FilePath;
 	
 	public Booster booster;
-	ModelThreadingDisk ModelThreading=new ModelThreadingDisk();
+	ModelThreadingDiskBinary ModelThreading=new ModelThreadingDiskBinary();
 	
 	
 	public void TrainModel(BaseModel model,DataPreparer dataPreparer){
