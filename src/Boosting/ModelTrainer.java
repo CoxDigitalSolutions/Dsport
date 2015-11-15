@@ -33,7 +33,7 @@ public class ModelTrainer {
     		int result=model.StopCalcuations();
     		double endTime = System.currentTimeMillis();
 			double secondsTaken=(double) ((endTime - startTime)/1000);
-			System.out.println("round:"+i+" time taken="+secondsTaken);
+			//System.out.println("round:"+i+" time taken="+secondsTaken);
     		if(result==-1){
     			break;
     		}

@@ -17,7 +17,7 @@ public class DataPreparer implements java.io.Serializable{
 	int [] ColumnSizes;
 	int [] usedFeatures;
 
-	public TargetSummary TargetSummary=new TargetSummary();
+	public NumericalFeatureSummary TargetSummary=new NumericalFeatureSummary();
 	
 	static final byte NewLineByte=0;
 	static final byte DelimiterByteInt=1;
@@ -438,16 +438,19 @@ public class DataPreparer implements java.io.Serializable{
 
 		
 		for(int i=0;i<Positions.length;i++){
+			
+			while(usedFeatures[usedFeature]<Positions[i] && usedFeature<usedFeatures.length-1){
+				usedFeature++;
+			}
 			if(usedFeatures[usedFeature]==Positions[i]){
+
 				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
 				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
 				count++;
 				continue;
 			}
 
-			while(usedFeatures[usedFeature]<Positions[i] && usedFeature<usedFeatures.length-1){
-				usedFeature++;
-			}
+
 
 		}
 		int [] Result=new int [count];

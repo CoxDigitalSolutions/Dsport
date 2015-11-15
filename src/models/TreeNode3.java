@@ -2,15 +2,24 @@ package models;
 
 import frameWork.DataPreparer;
 
-public class TreeNode2 implements java.io.Serializable{
+public class TreeNode3 implements java.io.Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	int level=0;
+	int leftTrees=0;
+	int treeID=0;
+	int TreeSum=0;
+	
 	int Categories;
-	float [] CategoricalG;
-	float [] CategoricalH;
-	int  [] CategoricalCount;
+	
+	
+	
+	float [][] CategoricalG;
+	float [][] CategoricalH;
+	int  [][] CategoricalCount;
 	
 	float  GlobalG=0;
 	float  GlobalH=0;
@@ -29,8 +38,8 @@ public class TreeNode2 implements java.io.Serializable{
 	boolean CompletedLeft=false;
 	boolean CompletedRight=false;
 
-	TreeNode2 leftChild;
-	TreeNode2 rightChild;
+	TreeNode3 leftChild;
+	TreeNode3 rightChild;
 	int minLeafCount=1;
 	int depth=0;
 	
@@ -39,16 +48,28 @@ public class TreeNode2 implements java.io.Serializable{
 	
 	public void InitCategorical(int inputNodes){
 		Categories=inputNodes;
-		CategoricalG = new float[Categories];
-		CategoricalH = new float[Categories];
-		CategoricalCount = new int[Categories];
+		CategoricalG[treeID] = new float[Categories];
+		CategoricalH[treeID] = new float[Categories];
+		CategoricalCount[treeID] = new int[Categories];
 
 	}
 	
+	public void InitID(int ParentLevel,int ParentLeftTrees,  int ThisLeft, int ParentTreeSum){
+		level=ParentLevel+1;
+		leftTrees=ParentLeftTrees*2+ThisLeft;
+		int pow=1;
+		for(int i=0;i<ParentLevel;i++){
+			pow*=2;
+		}
+		TreeSum=ParentTreeSum+pow;
+
+		treeID=(int) (leftTrees+pow+ParentTreeSum);
+	}
+	
 	public void InsertCatFeature(int ID, float RealValue,float residual){
-		CategoricalG[ID]+=calculateG(RealValue,residual);
-		CategoricalH[ID]+=calculateH(RealValue,residual);
-		CategoricalCount[ID]++;
+		CategoricalG[treeID][ID]+=calculateG(RealValue,residual);
+		CategoricalH[treeID][ID]+=calculateH(RealValue,residual);
+		CategoricalCount[treeID][ID]++;
 		
 	}
 	
@@ -129,26 +150,27 @@ public class TreeNode2 implements java.io.Serializable{
 		float [] fieldsH=new float[fields.length];
 		int [] fieldsCount=new int[fields.length];
 		
-		for(int i=0;i<CategoricalG.length;i++){
+		for(int i=0;i<CategoricalG[treeID].length;i++){
 
 			if(i>fieldSum+fields[fieldPos]){
 				//System.out.println(i);
 				fieldSum+=fields[fieldPos];
 				fieldPos++;
 			}
-			if(CategoricalCount[i]==0){
+
+			if(CategoricalCount[treeID][i]==0){
 				continue;
 			}
 			//float GL=CategoricalG[i];
-			fieldsG[fieldPos]+=CategoricalG[i];
+			fieldsG[fieldPos]+=CategoricalG[treeID][i];
 			float GL=fieldsG[fieldPos];
 			//float HL=CategoricalH[i];
-			fieldsH[fieldPos]+=CategoricalH[i];
+			fieldsH[fieldPos]+=CategoricalH[treeID][i];
 			float HL=fieldsH[fieldPos];
 			if(HL==0 || GlobalH-HL==0){
 				continue;
 			}
-			fieldsCount[fieldPos]+=CategoricalCount[i];
+			fieldsCount[fieldPos]+=CategoricalCount[treeID][i];
 			int countL=fieldsCount[fieldPos];
 			float GR=GlobalG-GL;
 			float HR=GlobalH-HL;
@@ -218,9 +240,7 @@ public class TreeNode2 implements java.io.Serializable{
 		System.out.println("maxGain=" + maxGain);
 		*/
 		
-		CategoricalG=null;
-		CategoricalH=null;
-		CategoricalCount=null;
+
 		Completed=true;
 		
 		if(!ValidChild){
@@ -236,18 +256,24 @@ public class TreeNode2 implements java.io.Serializable{
 		System.out.println("countLF="+countLF);
 		 */
 		
+		CategoricalG[treeID] = null;
+		CategoricalH[treeID] = null;
+		CategoricalCount[treeID] = null;
+
 		
-
-
-		leftChild=CreateChild();
+		leftChild=CreateChild(0);
 		leftChild.prediction=predictionLeft;
 		leftChild.direction+="-left";
 		leftChild.depth=this.depth+1;
 		
-		rightChild=CreateChild();
+
+
+		rightChild=CreateChild(1);
 		rightChild.prediction=predictionRight;
 		rightChild.direction+="-right";
 		rightChild.depth=this.depth+1;
+		
+
 		
 		leafNode=false;
 
@@ -309,8 +335,12 @@ public class TreeNode2 implements java.io.Serializable{
 		return 1;
 	}
 	
-	public TreeNode2 CreateChild(){
-		TreeNode2 Child=new TreeNode2();
+	public TreeNode3 CreateChild(int left){
+		TreeNode3 Child=new TreeNode3();
+		Child.InitID(level, leftTrees, left,TreeSum);
+		Child.CategoricalCount=CategoricalCount;
+		Child.CategoricalG=CategoricalG;
+		Child.CategoricalH=CategoricalH;
 		Child.InitCategorical(Categories);
 		Child.minLeafCount=minLeafCount;
 		Child.fields=fields;

@@ -119,4 +119,16 @@ public class FactorizationMachine extends BaseModel implements java.io.Serializa
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public void Init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void Cleanup() {
+		// TODO Auto-generated method stub
+		
+	}
 }

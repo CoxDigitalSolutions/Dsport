@@ -2,7 +2,7 @@ package models;
 
 import frameWork.DataPreparer;
 
-public class DecisionTree2  extends BaseModel implements java.io.Serializable{
+public class DecisionTree3  extends BaseModel implements java.io.Serializable{
 	/**
 	 * 
 	 */
@@ -10,11 +10,11 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 	
 	
 	private static final long serialVersionUID = 1L;
-	public DataPreparer dataPreparer;
 	public TreeNode root;
-	public int minLeafCount=500;
+	public int minLeafCount=1;
 	public int maxDepth=6;
 	public int CurrentDepth=0;
+	public int [] fields;
 	
 	@Override
 	public float predict(int[] FeatureVector) {
@@ -22,20 +22,20 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 		return root.predict(FeatureVector);
 	}
 
-	@Override
-	public float Train(float RealValue, int[] FeatureVector) {
-		root.UpdateCatFeatures(FeatureVector, dataPreparer.TargetSummary.ValueToPosition(RealValue),0.0F);
+
+	public float Train(float RealValue, int[] FeatureVector,float residual) {
+		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
 		return 0;
 	}
 	
-	public void Init(DataPreparer dataPreparer, int inputNodes) {
+	public void Init(int inputNodes) {
 		root=new TreeNode();
-		this.dataPreparer=dataPreparer;
 		root.minLeafCount=minLeafCount;
 		root.InitCategorical(inputNodes);
+		root.fields=fields;
 	}
 
-	public int CalculateCost() {
+	public int StopCalcuations() {
 		int cost=root.CalculateCost();
 		CurrentDepth++;
 		if(cost<0 || maxDepth<=CurrentDepth){
@@ -44,23 +44,29 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 		return 1;
 	}
 
+
 	@Override
-	public int StopCalcuations() {
+	public float Train(float RealValue, int[] FeatureVector) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+
 	@Override
 	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
+
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
 
 	@Override
 	public void Init() {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 	@Override
 	public void Cleanup() {

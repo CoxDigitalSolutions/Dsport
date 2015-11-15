@@ -17,7 +17,7 @@ public class DataPreparerTest implements java.io.Serializable{
 	int [] ColumnSizes;
 	int [] usedFeatures;
 
-	public TargetSummary TargetSummary=new TargetSummary();
+	public NumericalFeatureSummary TargetSummary=new NumericalFeatureSummary();
 	
 	static final byte NewLineByte=0;
 	static final byte DelimiterByteInt=1;

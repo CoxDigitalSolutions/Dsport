@@ -130,9 +130,8 @@ public class ModelThreadDiskBinary extends Thread{
 				}else{
 					// need to make sure Pos is correct
 					if(Validation){
-						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
 						result=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
-						//System.out.println(result);
+
 					}else{
 						float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
@@ -162,6 +161,7 @@ public class ModelThreadDiskBinary extends Thread{
 		*/
 		result=(float) UtilMath.exp(result)-1;
 		RealValue=(float) UtilMath.exp(RealValue)-1;
+		//System.out.println(result +" - "+ RealValue);
 		float tempNum=(result-RealValue)/RealValue;
 
 		tempC=tempNum*tempNum;

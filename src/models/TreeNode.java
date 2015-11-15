@@ -1,12 +1,12 @@
 package models;
 
-import frameWork.DataPreparer;
 
 public class TreeNode implements java.io.Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	boolean isRoot=false;
 	int Categories;
 	float [] CategoricalG;
 	float [] CategoricalH;
@@ -33,6 +33,8 @@ public class TreeNode implements java.io.Serializable{
 	TreeNode rightChild;
 	int minLeafCount=1;
 	int depth=0;
+	
+	TreeStats treeStats=new TreeStats();
 	
 	int [] fields;
 	String direction="";
@@ -117,7 +119,7 @@ public class TreeNode implements java.io.Serializable{
 		boolean ValidChild=false;
 		float predictionRight=0;
 		float predictionLeft=0;
-		//float countLF=0;
+		float countLF=0;
 		
 		for(int i=0;i<fields.length;i++){
 			//System.out.println(i+"="+fields[i]);
@@ -164,18 +166,19 @@ public class TreeNode implements java.io.Serializable{
 			gain=gain*-1;
 
 
-			if(gain>maxGain && countL>minLeafCount && countR>minLeafCount){
+			if(gain>maxGain && gain>0 && countL>minLeafCount && countR>minLeafCount){
 				maxGain=gain;
 				topFeature=i;
 				topField=fieldPos;
 				predictionRight=-GR/HR;
 				predictionLeft=-GL/HL;
 				ValidChild=true;
-				//countLF=countL;
+				countLF=countL;
 			}
 			
 		}
 		
+
 		/*
 		for(int i=0;i<CategoricalG.length;i++){
 			float GL=CategoricalG[i];
@@ -192,7 +195,6 @@ public class TreeNode implements java.io.Serializable{
 			float scoreTot=(GL+GR)*(GL+GR)/(HL+HR);
 			float gain=scoreTot-scoreLeft-scoreRight;
 			gain=gain*-1;
-
 			if(gain>maxGain && countL>minLeafCount && countR>minLeafCount){
 				maxGain=gain;
 				topFeature=i;
@@ -218,6 +220,7 @@ public class TreeNode implements java.io.Serializable{
 		System.out.println("maxGain=" + maxGain);
 		*/
 		
+		
 		CategoricalG=null;
 		CategoricalH=null;
 		CategoricalCount=null;
@@ -236,7 +239,7 @@ public class TreeNode implements java.io.Serializable{
 		System.out.println("countLF="+countLF);
 		 */
 		
-		
+		treeStats.LeafCount+=2;
 
 
 		leftChild=CreateChild();
@@ -315,7 +318,19 @@ public class TreeNode implements java.io.Serializable{
 		Child.minLeafCount=minLeafCount;
 		Child.fields=fields;
 		Child.direction=direction;
-
+		Child.treeStats=treeStats;
 		return Child;
+	}
+	
+	public void ClearData(){
+		CategoricalG=null;
+		CategoricalH=null;
+		CategoricalCount=null;
+		if(leftChild!=null){
+			leftChild.ClearData();
+		}
+		if(rightChild!=null){
+			rightChild.ClearData();
+		}
 	}
 }

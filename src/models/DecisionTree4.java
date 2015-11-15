@@ -2,7 +2,7 @@ package models;
 
 import frameWork.DataPreparer;
 
-public class DecisionTree  extends BaseModel implements java.io.Serializable{
+public class DecisionTree4  extends BaseModel implements java.io.Serializable{
 	/**
 	 * 
 	 */
@@ -10,12 +10,18 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	
 	
 	private static final long serialVersionUID = 1L;
-	public TreeNode root;
+	public TreeNode3 root;
 	public int minLeafCount=1;
 	public int maxDepth=6;
 	public int CurrentDepth=0;
 	public int [] fields;
-	TreeStats treeStats=new TreeStats();
+	
+	
+	// tree values
+	int Categories;
+	float [][] CategoricalG;
+	float [][] CategoricalH;
+	int  [][] CategoricalCount;
 	
 	@Override
 	public float predict(int[] FeatureVector) {
@@ -30,20 +36,40 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	}
 	
 	public void Init(int inputNodes) {
-		root=new TreeNode();
+		Categories=inputNodes;
+
+
+		
+
+	}
+	
+	
+	public void Init() {
+		int trees=0;
+		for(int i=0;i<=maxDepth;i++){
+			trees+=Math.pow(2, i);
+			System.out.println(trees);
+		}
+		CategoricalG = new float[trees][];
+		CategoricalH = new float[trees][];
+		CategoricalCount = new int[trees][];
+		
+		root=new TreeNode3();
+		root.level=0;
+		root.leftTrees=0;
+		root.treeID=0;
 		root.minLeafCount=minLeafCount;
-		root.InitCategorical(inputNodes);
+		root.CategoricalCount=CategoricalCount;
+		root.CategoricalG=CategoricalG;
+		root.CategoricalH=CategoricalH;
+		root.InitCategorical(Categories);
 		root.fields=fields;
-		root.isRoot=true;
-		treeStats.LeafCount=1;
-		root.treeStats=treeStats;
 	}
 
 	public int StopCalcuations() {
 		int cost=root.CalculateCost();
 		CurrentDepth++;
 		if(cost<0 || maxDepth<=CurrentDepth){
-			root.ClearData();
 			return -1;
 		}
 		return 1;
@@ -66,15 +92,12 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	}
 
 
-	@Override
-	public void Init() {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 	@Override
 	public void Cleanup() {
+		CategoricalCount=null;
+		CategoricalG=null;
+		CategoricalH=null;
 		// TODO Auto-generated method stub
 		
 	}

@@ -5,4 +5,6 @@ public interface Model {
 	float Train(float RealValue, int [] FeatureVector );
 	float TrainBoosted(float RealValue, float residual, int [] FeatureVector );
 	public int StopCalcuations();
+	public void Init();
+	public void Cleanup();
 }

@@ -52,6 +52,7 @@ public class Booster {
 		for(int i=0;i<BoostedModels.length;i++){
 			double startTime = System.currentTimeMillis();
 			ModelTrainers[i].booster=this;
+			BoostedModels[i].model.Init();
 			ModelTrainers[i].TrainModel(BoostedModels[i].model,BoostedModels[i].dataPreparer);
 			modelsTrained++;
 			double endTime = System.currentTimeMillis();
@@ -69,6 +70,7 @@ public class Booster {
 				System.out.println("error validating");
 				e.printStackTrace();
 			}
+			BoostedModels[i].model.Cleanup();
 		}
 	}	
 }
