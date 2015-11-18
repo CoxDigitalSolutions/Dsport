@@ -1,6 +1,5 @@
 package models;
 
-import frameWork.DataPreparer;
 
 public class DecisionTree  extends BaseModel implements java.io.Serializable{
 	/**
@@ -43,6 +42,7 @@ public class DecisionTree  extends BaseModel implements java.io.Serializable{
 		int cost=root.CalculateCost();
 		CurrentDepth++;
 		if(cost<0 || maxDepth<=CurrentDepth){
+			//root.PrintTree();
 			root.ClearData();
 			return -1;
 		}

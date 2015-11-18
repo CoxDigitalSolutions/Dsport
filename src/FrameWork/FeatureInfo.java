@@ -3,7 +3,9 @@ package frameWork;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import gnu.trove.map.hash.THashMap;
 
@@ -12,6 +14,16 @@ public class FeatureInfo implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	int myID=0;
+	NumericalFeatureSummary FeatureSummary=new NumericalFeatureSummary();
+	int Type=1;
+	
+	final int SMOOTHEDCATEGORICAL=1;
+	final int INTEGER=2;
+	final int FLOAT=3;
+	
+	
+	int NumericalType=3;
 	
 	
 	//name, count
@@ -24,7 +36,30 @@ public class FeatureInfo implements java.io.Serializable {
 	public int SmoothingLimit=100;
 	private int maxID=Integer.MAX_VALUE;
 	
+	public void Finalize(){
+		FeatureSummary.Finalize();
+	}
+	
 	public void Update(String key){
+
+		if(NumericalType>1){
+			try{
+				double Dval=Double.parseDouble(key);
+				
+				FeatureSummary.AddTargetValue(Dval);
+				if(Dval % 1!=0){
+					
+					NumericalType=2;
+				}
+
+
+			}catch (Exception e){
+				//if(myID==11){
+					System.out.println(myID+" key="+key);
+				//}
+				NumericalType=1;
+			}
+		}
 		if(MainCounter.contains(key)){
 			MainCounter.put(key, MainCounter.get(key)+1);
 		}else{
@@ -40,23 +75,21 @@ public class FeatureInfo implements java.io.Serializable {
 				maxID=MainCounterSorted.get(entry.getValue());
 				writer.write(entry.getValue()+"@@"+(maxID+Position)+"\n");
 				if(entry.getKey()<SmoothingLimit){
-					//maxID=MainCounterSorted.get(entry.getValue());
 					break;
 				}
 			}
 			writer.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public void PrepareFeatures(int minSmoothingLimit){
-		for (Map.Entry<String, Integer> entry : MainCounter.entrySet()) {
-
+		Iterator<Entry<String, Integer>> iter = MainCounter.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<String,Integer> entry = iter.next();
 			if(minSmoothingLimit>entry.getValue()){
-				//find a way to remove this entry later?
-				//MainCounter.remove(entry.getKey());
+				iter.remove();
 				continue;
 			}
 			if(desSortedMap.containsKey(entry.getValue())){
@@ -86,30 +119,62 @@ public class FeatureInfo implements java.io.Serializable {
 	
 	public int GetPreparedFeature(String RawFeature){
 		int Result=0;
-		if(MainCounterSorted.contains(RawFeature)){
-			Integer ID=MainCounterSorted.get(RawFeature);
-			if(ID<=maxID){
-				Result=ID;
+		if(NumericalType==1){
+			if(MainCounterSorted.contains(RawFeature)){
+				Integer ID=MainCounterSorted.get(RawFeature);
+				if(ID<=maxID){
+					Result=ID;
+				}
 			}
+		}else if(NumericalType>=2){
+			Result=Integer.parseInt(RawFeature);
+			
 		}
 		return Result;
 	}
 	
-	public int GetProcessedFeature(String Feature){
+	public int GetProcessedFeature(String FeatureS){
 		int Result=0;
-		int ID=Integer.parseInt(Feature);
-		if(ID<=maxID){
-			Result=ID;
-		}
+		int Feature=Integer.parseInt(FeatureS);
+		if(Type==SMOOTHEDCATEGORICAL){
+			int ID=0;
+			
+			if(NumericalType==1){
+				ID=Feature;
+			}else if(NumericalType>=2){
+				ID=FeatureSummary.ValueToPosition(Feature);
+				
+			}
 
+			if(ID<=maxID){
+				Result=ID;
+			}
+			
+		}else {
+			System.out.println("wtf!!");
+		}
 		return Result;
 	}
 	
 	public int GetProcessedFeatureInt(int Feature){
+		
 		int Result=0;
-		int ID=Feature;
-		if(ID<=maxID){
-			Result=ID;
+		if(Type==SMOOTHEDCATEGORICAL){
+			int ID=0;
+			
+			if(NumericalType==1){
+				ID=Feature;
+			}else if(NumericalType>=2){
+				ID=FeatureSummary.ValueToPosition(Feature);
+				
+			}
+			
+			if(ID<=maxID){
+				Result=ID;
+			}
+			//System.out.println(Result + " Feature="+Feature + " maxID="+maxID +"ID="+ID);
+		}else if(Type==INTEGER){
+			
 		}
 
 		return Result;
@@ -121,13 +186,13 @@ public class FeatureInfo implements java.io.Serializable {
 			for(int i=0;i<tStringArr.length;i++){
 				maxID=MainCounterSorted.get(tStringArr[i]);
 				if(entry.getKey()<SmoothingLimit){
-					
-					//maxID=MainCounterSorted.get(entry.getValue());
 					break;
 				}
 			}
 		}
-		
+		if(NumericalType>=2){
+			maxID=FeatureSummary.CountMap.size();
+		}
 		System.out.println(maxID);
 		return maxID;
 	}

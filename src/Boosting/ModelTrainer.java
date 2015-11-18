@@ -19,6 +19,7 @@ public class ModelTrainer {
 	
 	
 	public void TrainModel(BaseModel model,DataPreparer dataPreparer){
+		
 		ModelThreading.verbose=false;
 		ModelThreading.booster=booster;
 		for(int i=0;i<Rounds || ModelDecidedEnd;i++){
@@ -33,7 +34,7 @@ public class ModelTrainer {
     		int result=model.StopCalcuations();
     		double endTime = System.currentTimeMillis();
 			double secondsTaken=(double) ((endTime - startTime)/1000);
-			//System.out.println("round:"+i+" time taken="+secondsTaken);
+			System.out.println("round:"+i+" time taken="+secondsTaken);
     		if(result==-1){
     			break;
     		}

@@ -1,9 +1,7 @@
 package frameWork;
 
-import java.io.BufferedReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-
 import Boosting.Booster;
 import models.BaseModel;
 
@@ -14,16 +12,19 @@ public class ModelThreadingDiskBinary {
    public boolean validation=false;
 	
 	public double [] train(BaseModel BaseModel,int rounds,int threads, String File,int minID,int maxID,DataPreparer dataPreparer) throws InterruptedException{
+		
 		ModelThreadDiskBinary[] ModelThreads= new ModelThreadDiskBinary[threads];
 		FileChannel[] inChannel =new FileChannel[threads];
 		ByteBuffer[] buffer =new ByteBuffer[threads];
 		InitBRBinary[] BRthread = new InitBRBinary[threads];
 		//FileChannel inChannel,ByteBuffer buffer
+		
 		for(int i=0;i<threads;i++){
 			int ID=i;
 			BRthread[ID]=new InitBRBinary( inChannel[ID],buffer[ID],minID,maxID,ID,threads,File,dataPreparer);
 			BRthread[ID].start();
 		}
+		
 		for(int i=0;i<threads;i++){
 			BRthread[i].join();
 		}
@@ -39,6 +40,7 @@ public class ModelThreadingDiskBinary {
 		
 		double count=0;
 		double cost=0;
+
 		for(int i=0;i<threads;i++){
 			int ID=i;
 			ModelThreads[ID].join();
@@ -52,6 +54,9 @@ public class ModelThreadingDiskBinary {
 		double [] Result=new double[2];
 		Result[0]=cost;
 		Result[1]=count;
+		
+
+		
 		return Result;
 	}
 }

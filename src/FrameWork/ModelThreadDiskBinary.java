@@ -1,8 +1,6 @@
 package frameWork;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -59,7 +57,7 @@ public class ModelThreadDiskBinary extends Thread{
 	  int i=0;
 	  float PrintTime=1.0F;
 	  float temp=PrintTime;
-	  float minLog=(float) (1*Math.pow(10, -15));
+
 
 	  AdTotCountRound=0;
 
@@ -70,17 +68,17 @@ public class ModelThreadDiskBinary extends Thread{
 	  if(location.length()>0){
 		  writer = new PrintWriter(location+"-"+ID,"UTF-8");
 	  }
-			  
+
       while(i<rounds)
       {
     	
-    	  if(UtilByte.CheckUpdateBuffer(inChannel,buffer)==-1){
-  			inChannel = new FileInputStream(File).getChannel();
-  			buffer = ByteBuffer.allocateDirect(16384*2);
-  			buffer.flip();
-  			Pos=0;
-  			continue;
-    	  }
+		  if(UtilByte.CheckUpdateBuffer(inChannel,buffer)==-1){
+			inChannel = new FileInputStream(File).getChannel();
+			buffer = ByteBuffer.allocateDirect(16384*2);
+			buffer.flip();
+			Pos=0;
+			continue;
+		  }
 
 
     	Pos++;
@@ -113,15 +111,27 @@ public class ModelThreadDiskBinary extends Thread{
 				Pos=0;
 				continue;
 	  	  }
-
-		float RealValue=dataPreparer.GetPredictionBinary(inChannel,buffer);
+	  	float RealValue=0;
+	  	int ID=0;
+	  	if(location.length()>0){
+	  		ID=dataPreparer.GetIDBinary(inChannel,buffer);
+	  	}else{
+	  		RealValue=dataPreparer.GetPredictionBinary(inChannel,buffer);
+	  	}
 		
 		
 		float result=0;
 			if(location.length()>0){
-
-				result = BaseModel.predict(tempLFV[0]);
-				writer.write(RealValue+","+result+"\n");
+				if(booster==null){
+					int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
+					result = BaseModel.predict(UsedFatures);
+					writer.write(ID+","+result+"\n");
+				}else{
+					
+					float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
+					float WriterResult=(float) UtilMath.exp(residual)-1;
+					writer.write(ID+","+WriterResult+"\n");
+				}
 			}else{
 				if(booster==null){
 					int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
@@ -130,35 +140,22 @@ public class ModelThreadDiskBinary extends Thread{
 				}else{
 					// need to make sure Pos is correct
 					if(Validation){
+
 						result=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 
 					}else{
+						
 						float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
+
 						result = BaseModel.TrainBoosted(RealValue, residual, UsedFatures);
 					}
 				}
 			}
 
-
-		if(result!=0){
 		
 		float tempC=0;
-		/*
-		if(RealValue==0){
-			if(result>=1-minLog){
-				tempC=(float) Math.log(minLog);
-			}else{
-				tempC=(float) Math.log(1-result);
-			}
-		}else{
-			if(result<=minLog){
-				tempC=(float) Math.log(minLog);
-			}else{
-				tempC=(float) Math.log(result);
-			}
-		}
-		*/
+		
 		result=(float) UtilMath.exp(result)-1;
 		RealValue=(float) UtilMath.exp(RealValue)-1;
 		//System.out.println(result +" - "+ RealValue);
@@ -170,14 +167,14 @@ public class ModelThreadDiskBinary extends Thread{
 
 		
 		AdTotCountRound++;
-		}
+
 	     i++;
       }
 
 	  if(location.length()>0){
 		  writer.close();
 	  }
-	  
+
       if(verbose){
     	  //System.out.println("ThreadID=" +ID+" cost="+RoundCost/AdTotCountRound);
       }

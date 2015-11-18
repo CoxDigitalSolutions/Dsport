@@ -16,8 +16,8 @@ public class DataPreparer implements java.io.Serializable{
 	String SubDelimiter="\t";
 	int [] ColumnSizes;
 	int [] usedFeatures;
-
-	public NumericalFeatureSummary TargetSummary=new NumericalFeatureSummary();
+	int [] maxFeatures;
+	int [] minFeatures;
 	
 	static final byte NewLineByte=0;
 	static final byte DelimiterByteInt=1;
@@ -27,16 +27,23 @@ public class DataPreparer implements java.io.Serializable{
 	static final byte DelimiterByteByte=5;
 	static final byte SubDelimiterByteByte=6;
 	static final byte PredictionFloat=7;
+	static final byte IDInt=8;
 	
 	public void init(int FeatureCount){
 		FeatureInfo=new FeatureInfo[FeatureCount];
+		maxFeatures =new int[FeatureCount];;
+		minFeatures =new int[FeatureCount];;
 		for(int i=0;i<FeatureInfo.length;i++){
 			FeatureInfo[i]=new FeatureInfo();
+			FeatureInfo[i].myID=i;
+			FeatureInfo[i].FeatureSummary.myID=i;
 		}
 	}
 	
 	public void Finalize(){
-		TargetSummary.Finalize();
+		for(int i=0;i<FeatureInfo.length;i++){
+			FeatureInfo[i].Finalize();
+		}
 	}
 	
 	public void Update(String [] RawFeatures){
@@ -60,10 +67,14 @@ public class DataPreparer implements java.io.Serializable{
 	}
 	
 	public void SetSmoothingLimit(int minSmoothingLimit){
+		maxFeatures =new int[FeatureInfo.length];
+		minFeatures =new int[FeatureInfo.length];
 		ColumnSizes=new int[FeatureInfo.length];
 		for(int i=0;i<FeatureInfo.length;i++){
 			FeatureInfo[i].SmoothingLimit=minSmoothingLimit;
 			ColumnSizes[i] = FeatureInfo[i].SetMaxID();
+			minFeatures[i]=Integer.MAX_VALUE;
+			maxFeatures[i]=Integer.MIN_VALUE;
 		}
 	}
 	
@@ -113,6 +124,21 @@ public class DataPreparer implements java.io.Serializable{
 		byte [] predictionByte=ByteBuffer.allocate(4).putFloat(Float.parseFloat(value)).array();
 		byte [] Result=new byte[predictionByte.length+1];
 		Result[0]=PredictionFloat;
+		for(int i=0;i<predictionByte.length;i++){
+			Result[i+1]=predictionByte[i];
+		}
+		return Result;
+	}
+	
+	public byte [] IDToByte(String value){
+		float val=Float.parseFloat(value);
+		if(Float.isNaN(val)){
+			System.out.println("Nan value found in predictionToByte");
+		}
+		ByteBuffer.allocate(4).putFloat(val).array();
+		byte [] predictionByte=ByteBuffer.allocate(4).putInt(Integer.parseInt(value)).array();
+		byte [] Result=new byte[predictionByte.length+1];
+		Result[0]=IDInt;
 		for(int i=0;i<predictionByte.length;i++){
 			Result[i+1]=predictionByte[i];
 		}
@@ -354,8 +380,20 @@ public class DataPreparer implements java.io.Serializable{
 			System.out.println("issue getting prediction from binary wrong first byte");
 			return -1;
 		}
-		
-		
+	}
+	
+	public int GetIDBinary(FileChannel inChannel,ByteBuffer buffer){
+		if(CheckUpdateBuffer(inChannel,buffer)==-1){
+			System.out.println("issue getting prediction from binary empty buffer/inChannel");
+			return -1;
+		}
+		byte b=buffer.get();
+		if(b==IDInt){
+			return BufferGetInt(inChannel,buffer);
+		}else{
+			System.out.println("issue getting prediction from binary wrong first byte");
+			return -1;
+		}
 	}
 	
 	public int [][] GetFeatures(FileChannel inChannel,ByteBuffer buffer){
@@ -444,20 +482,37 @@ public class DataPreparer implements java.io.Serializable{
 			}
 			if(usedFeatures[usedFeature]==Positions[i]){
 
+				
 				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
+				//System.out.println("Pos="+Positions[i]+" RawF="+Features[i]+" FinalF="+WorkingSet[count]);
+
+				if(WorkingSet[count]>maxFeatures[count]){
+					maxFeatures[count]=WorkingSet[count];
+				}
+				if(WorkingSet[count]<minFeatures[count]){
+					minFeatures[count]=WorkingSet[count];
+				}
+
+				if(Position>0){
+					WorkingSet[count]++;
+				}
 				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
 				count++;
-				continue;
 			}
-
-
-
 		}
+		
 		int [] Result=new int [count];
 		for(int i=0;i<count;i++){
 			Result[i]=WorkingSet[i];
 		}
+
 		return Result;
+	}
+	
+	public void PrintMaxMinFeautre(){
+		for(int i=0;i<maxFeatures.length;i++){
+			System.out.println(i + " max="+maxFeatures[i] + " min="+minFeatures[i]);
+		}
 	}
 	
 	public int [] GetFeatures(String FeaturesString){

@@ -7,10 +7,10 @@ public class Booster {
 	public BoostedModel [] BoostedModels;
 	public ModelTrainer [] ModelTrainers;
 	
-	float [] predictions;
-	int [] ModelCount;
+	public float [] predictions;
+	public int [] ModelCount;
 	int modelsTrained=0;
-	
+	float eta=0.2F;
 	
 	//SamplesPerThread, threads,FilePath,startPoint, endPoint,dataPreparer)
 	
@@ -39,7 +39,7 @@ public class Booster {
 	public float GetLatestPrediction(int sample,int [] Features, int [] Positions){
 		
 		for(int i=ModelCount[sample];i<modelsTrained;i++){
-			predictions[sample]+=BoostedModels[i].predict(Features,Positions);
+			predictions[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
 			ModelCount[sample]++;
 		}
 		return predictions[sample];
@@ -70,6 +70,7 @@ public class Booster {
 				System.out.println("error validating");
 				e.printStackTrace();
 			}
+
 			BoostedModels[i].model.Cleanup();
 		}
 	}	

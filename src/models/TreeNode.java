@@ -17,7 +17,8 @@ public class TreeNode implements java.io.Serializable{
 	int GlobalCount=0;;
 	
 	float prediction;
-
+	int count1=0;
+	int count2=0;
 
 	int topFeature=-1;
 	int topField=-1;
@@ -73,31 +74,54 @@ public class TreeNode implements java.io.Serializable{
 				//System.out.println(FeatureID+" - "+ topFeature+" - "+ fieldPos+" - "+ topField);
 				left=true;
 				break;
+			}else{
+				
 			}
 			
 		}
 		if(left){
-			return leftChild.predict(FeatureVector);
+			if(FinalLeft){
+				return prediction;
+			}else{
+				return leftChild.predict(FeatureVector);
+			}
 		}else{
-			return rightChild.predict(FeatureVector);
+			if(FinalRight){
+				return prediction;
+			}else{
+				return rightChild.predict(FeatureVector);
+			}
 		}
 	}
 	
 	public int CalculateCost(){
 		if(!leafNode){
-			int LeftResult=leftChild.CalculateCost();
+			int LeftResult=-1;
+			if(!FinalLeft){
+				LeftResult=leftChild.CalculateCost();
+			}
 			if(LeftResult==-1){
+				leftChild=null;
 				FinalLeft=true;
 				CompletedLeft=true;
 			}else if(LeftResult==-2){
 				CompletedLeft=true;
 			}
-			int RightResult=rightChild.CalculateCost();
+			int RightResult=-1;
+			if(!FinalRight){
+				RightResult=rightChild.CalculateCost();
+			}
+			
 			if(RightResult==-1){
+				rightChild=null;
 				FinalRight=true;
 				CompletedRight=true;
 			}else if(RightResult==-2){
 				CompletedRight=true;
+			}
+			
+			if(FinalRight && FinalLeft){
+				leafNode=true;
 			}
 
 			if(CompletedRight && CompletedLeft){
@@ -130,17 +154,23 @@ public class TreeNode implements java.io.Serializable{
 		float [] fieldsG=new float[fields.length];
 		float [] fieldsH=new float[fields.length];
 		int [] fieldsCount=new int[fields.length];
-		
+
+
 		for(int i=0;i<CategoricalG.length;i++){
 
 			if(i>fieldSum+fields[fieldPos]){
 				//System.out.println(i);
+				//System.out.println(fieldPos+"="+fieldSum);
 				fieldSum+=fields[fieldPos];
+				
 				fieldPos++;
+				
 			}
+
 			if(CategoricalCount[i]==0){
 				continue;
 			}
+			
 			//float GL=CategoricalG[i];
 			fieldsG[fieldPos]+=CategoricalG[i];
 			float GL=fieldsG[fieldPos];
@@ -148,7 +178,7 @@ public class TreeNode implements java.io.Serializable{
 			fieldsH[fieldPos]+=CategoricalH[i];
 			float HL=fieldsH[fieldPos];
 			if(HL==0 || GlobalH-HL==0){
-				continue;
+				//continue;
 			}
 			fieldsCount[fieldPos]+=CategoricalCount[i];
 			int countL=fieldsCount[fieldPos];
@@ -165,7 +195,7 @@ public class TreeNode implements java.io.Serializable{
 			float gain=scoreTot-scoreLeft-scoreRight;
 			gain=gain*-1;
 
-
+			//System.out.println("Feature="+i+" Field="+fieldPos+" gain="+gain);
 			if(gain>maxGain && gain>0 && countL>minLeafCount && countR>minLeafCount){
 				maxGain=gain;
 				topFeature=i;
@@ -177,36 +207,7 @@ public class TreeNode implements java.io.Serializable{
 			}
 			
 		}
-		
 
-		/*
-		for(int i=0;i<CategoricalG.length;i++){
-			float GL=CategoricalG[i];
-			float HL=CategoricalH[i];
-			float GR=GlobalG-CategoricalG[i];
-			float HR=GlobalH-CategoricalH[i];
-			
-			int countL=CategoricalCount[i];
-			int countR=GlobalCount-CategoricalCount[i];
-			
-			
-			float scoreLeft=GL*GL/HL;
-			float scoreRight=GR*GR/HR;
-			float scoreTot=(GL+GR)*(GL+GR)/(HL+HR);
-			float gain=scoreTot-scoreLeft-scoreRight;
-			gain=gain*-1;
-			if(gain>maxGain && countL>minLeafCount && countR>minLeafCount){
-				maxGain=gain;
-				topFeature=i;
-				predictionRight=-GR/HR;
-				predictionLeft=-GL/HL;
-				ValidChild=true;
-				countLF=countL;
-			}
-			
-		}
-		
-		 */
 		/*
 		System.out.println("direction=" + direction);
 		System.out.println("prediction=" + (-GlobalG/GlobalH));
@@ -217,10 +218,16 @@ public class TreeNode implements java.io.Serializable{
 		System.out.println("count=" + GlobalCount);
 		System.out.println("countLF=" + countLF);
 		System.out.println("topFeature=" + topFeature);
+		System.out.println("topField=" + topField);
 		System.out.println("maxGain=" + maxGain);
+		
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		*/
-		
-		
 		CategoricalG=null;
 		CategoricalH=null;
 		CategoricalCount=null;
@@ -272,9 +279,11 @@ public class TreeNode implements java.io.Serializable{
 				if(!(FeatureID<fields[fieldPos])){
 					fieldPos++;
 				}
-
-				if(FeatureID<=topFeature && fieldPos==topField){
+				if(fieldPos==1 && FeatureID<1116){
 					//System.out.println(FeatureID+" - "+ topFeature+" - "+ fieldPos+" - "+ topField);
+				}
+				if(FeatureID<=topFeature && fieldPos==topField){
+					//System.out.println("left");
 					left=true;
 					break;
 				}
@@ -300,7 +309,14 @@ public class TreeNode implements java.io.Serializable{
 		GlobalCount++;
 
 		for(int i=0;i<FeatureVector.length;i++){
+			if(i==0){
+				count1++;
+			}
+			if(i==1){
+				count2++;
+			}
 			InsertCatFeature(FeatureVector[i],RealValue,residual);
+
 		}
 	}
 	
@@ -320,6 +336,16 @@ public class TreeNode implements java.io.Serializable{
 		Child.direction=direction;
 		Child.treeStats=treeStats;
 		return Child;
+	}
+	
+	public void PrintTree(){
+		System.out.println(depth+" : Feature="+ topFeature + "topField="+ topField + " prediction="+prediction);
+		if(leftChild!=null){
+			leftChild.PrintTree();
+		}
+		if(rightChild!=null){
+			rightChild.PrintTree();
+		}
 	}
 	
 	public void ClearData(){

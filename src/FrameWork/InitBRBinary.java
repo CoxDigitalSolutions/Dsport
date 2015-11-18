@@ -1,8 +1,6 @@
 package frameWork;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -45,7 +43,11 @@ public class InitBRBinary extends Thread{
 	  int StartPosition=(int) minID+(Size/TotalThreads*ID);
 	  while(counter<StartPosition ) {
 		  if(dataPreparer.GetFeatures(inChannel, buffer)==null){
+			  
 			  System.out.println("ran out of Samples in InitBRBinary");
+		  }else{
+			  dataPreparer.GetPredictionBinary(inChannel, buffer);
+			  //dataPreparer.GetIDBinary(inChannel, buffer);
 		  }
 		  counter++;
 	  }
