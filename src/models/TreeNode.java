@@ -6,15 +6,20 @@ public class TreeNode implements java.io.Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	int ID=0;
 	boolean isRoot=false;
 	int Categories;
-	float [] CategoricalG;
-	float [] CategoricalH;
-	int  [] CategoricalCount;
+	double [][] CategoricalG;
+	double [][] CategoricalH;
+	int  [][] CategoricalCount;
 	
-	float  GlobalG=0;
-	float  GlobalH=0;
-	int GlobalCount=0;;
+	double  [] GlobalG;
+	double  [] GlobalH;
+	int [] GlobalCount;
+	
+	double  GlobalGFinal=0;
+	double  GlobalHFinal=0;
+	int GlobalCountFinal=0;
 	
 	float prediction;
 	int count1=0;
@@ -42,16 +47,22 @@ public class TreeNode implements java.io.Serializable{
 	
 	public void InitCategorical(int inputNodes){
 		Categories=inputNodes;
-		CategoricalG = new float[Categories];
-		CategoricalH = new float[Categories];
-		CategoricalCount = new int[Categories];
+		
+		CategoricalG = new double[treeStats.Threads][Categories];
+		CategoricalH = new double[treeStats.Threads][Categories];
+		CategoricalCount = new int[treeStats.Threads][Categories];
+
+		GlobalG= new double[treeStats.Threads];
+		GlobalH= new double[treeStats.Threads];
+		GlobalCount = new int[treeStats.Threads];
 
 	}
 	
-	public void InsertCatFeature(int ID, float RealValue,float residual){
-		CategoricalG[ID]+=calculateG(RealValue,residual);
-		CategoricalH[ID]+=calculateH(RealValue,residual);
-		CategoricalCount[ID]++;
+	public void InsertCatFeature(int ID, float RealValue,float residual,int ThreadID){
+
+		CategoricalG[ThreadID][ID]+=calculateG(RealValue,residual);
+		CategoricalH[ThreadID][ID]+=calculateH(RealValue,residual);
+		CategoricalCount[ThreadID][ID]++;
 		
 	}
 	
@@ -95,6 +106,7 @@ public class TreeNode implements java.io.Serializable{
 	}
 	
 	public int CalculateCost(){
+		
 		if(!leafNode){
 			int LeftResult=-1;
 			if(!FinalLeft){
@@ -133,11 +145,20 @@ public class TreeNode implements java.io.Serializable{
 		if(Completed){
 			return -2;
 		}
+		for(int i=0;i<GlobalG.length;i++){
+			GlobalGFinal+=GlobalG[i];
+		}
+		for(int i=0;i<GlobalH.length;i++){
+			GlobalHFinal+=GlobalH[i];
+		}
+		for(int i=0;i<GlobalCount.length;i++){
+			GlobalCountFinal+=GlobalCount[i];
+
+		}
 
 
+		prediction=(float) (-GlobalGFinal/GlobalHFinal);
 
-		prediction=(-GlobalG/GlobalH);
-		//System.out.println("prediction="+prediction);
 
 		float maxGain=Float.MIN_VALUE;
 		boolean ValidChild=false;
@@ -151,12 +172,12 @@ public class TreeNode implements java.io.Serializable{
 
 		int fieldPos=0;
 		int fieldSum=0;
-		float [] fieldsG=new float[fields.length];
-		float [] fieldsH=new float[fields.length];
+		double [] fieldsG=new double[fields.length];
+		double [] fieldsH=new double[fields.length];
 		int [] fieldsCount=new int[fields.length];
 
 
-		for(int i=0;i<CategoricalG.length;i++){
+		for(int i=0;i<CategoricalG[0].length;i++){
 
 			if(i>fieldSum+fields[fieldPos]){
 				//System.out.println(i);
@@ -166,42 +187,54 @@ public class TreeNode implements java.io.Serializable{
 				fieldPos++;
 				
 			}
-
-			if(CategoricalCount[i]==0){
+			int sumCategoricalCount=0;
+			for(int j=0;j<CategoricalG.length;j++){
+				sumCategoricalCount+=CategoricalCount[j][i];
+			}
+			
+			if(sumCategoricalCount==0){
 				continue;
 			}
 			
 			//float GL=CategoricalG[i];
-			fieldsG[fieldPos]+=CategoricalG[i];
-			float GL=fieldsG[fieldPos];
+			double Tsum=0;
+			for(int j=0;j<CategoricalG.length;j++){
+				fieldsG[fieldPos]+=CategoricalG[j][i];
+			}
+			double GL=fieldsG[fieldPos];
+
 			//float HL=CategoricalH[i];
-			fieldsH[fieldPos]+=CategoricalH[i];
-			float HL=fieldsH[fieldPos];
-			if(HL==0 || GlobalH-HL==0){
+			for(int j=0;j<CategoricalH.length;j++){
+				fieldsH[fieldPos]+=CategoricalH[j][i];
+			}
+
+			double HL=fieldsH[fieldPos];
+			if(HL==0 || GlobalHFinal-HL==0){
 				//continue;
 			}
-			fieldsCount[fieldPos]+=CategoricalCount[i];
+			for(int j=0;j<CategoricalCount.length;j++){
+				fieldsCount[fieldPos]+=CategoricalCount[j][i];
+			}
 			int countL=fieldsCount[fieldPos];
-			float GR=GlobalG-GL;
-			float HR=GlobalH-HL;
+			float GR=(float) (GlobalGFinal-GL);
+			float HR=(float) (GlobalHFinal-HL);
 			
 
-			int countR=GlobalCount-countL;
-
+			int countR=GlobalCountFinal-countL;
 			
-			float scoreLeft=GL*GL/HL;
-			float scoreRight=GR*GR/HR;
-			float scoreTot=(GL+GR)*(GL+GR)/(HL+HR);
-			float gain=scoreTot-scoreLeft-scoreRight;
+			double scoreLeft=GL*GL/HL;
+			double scoreRight=GR*GR/HR;
+			double scoreTot=(GL+GR)*(GL+GR)/(HL+HR);
+			double gain=scoreTot-scoreLeft-scoreRight;
 			gain=gain*-1;
 
 			//System.out.println("Feature="+i+" Field="+fieldPos+" gain="+gain);
 			if(gain>maxGain && gain>0 && countL>minLeafCount && countR>minLeafCount){
-				maxGain=gain;
+				maxGain=(float) gain;
 				topFeature=i;
 				topField=fieldPos;
 				predictionRight=-GR/HR;
-				predictionLeft=-GL/HL;
+				predictionLeft=(float) (-GL/HL);
 				ValidChild=true;
 				countLF=countL;
 			}
@@ -210,19 +243,20 @@ public class TreeNode implements java.io.Serializable{
 
 		/*
 		System.out.println("direction=" + direction);
-		System.out.println("prediction=" + (-GlobalG/GlobalH));
+		System.out.println("prediction=" + (-GlobalGFinal/GlobalHFinal));
 		System.out.println("predictionLeft=" + predictionLeft);
 		System.out.println("predictionRight=" + predictionRight);
-		System.out.println("GlobalG=" + GlobalG);
-		System.out.println("GlobalH=" + GlobalH);
-		System.out.println("count=" + GlobalCount);
+		System.out.println("GlobalGFinal=" + GlobalGFinal);
+		System.out.println("GlobalHFinal=" + GlobalHFinal);
+		System.out.println("GlobalCountFinal=" + GlobalCountFinal);
+		System.out.println("count=" + GlobalCountFinal);
 		System.out.println("countLF=" + countLF);
 		System.out.println("topFeature=" + topFeature);
 		System.out.println("topField=" + topField);
 		System.out.println("maxGain=" + maxGain);
 		
 		try {
-			Thread.sleep(1);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,25 +280,29 @@ public class TreeNode implements java.io.Serializable{
 		System.out.println("countLF="+countLF);
 		 */
 		
-		treeStats.LeafCount+=2;
+		
 
 
 		leftChild=CreateChild();
 		leftChild.prediction=predictionLeft;
 		leftChild.direction+="-left";
 		leftChild.depth=this.depth+1;
+		leftChild.ID=treeStats.LeafCount+0;
 		
 		rightChild=CreateChild();
 		rightChild.prediction=predictionRight;
 		rightChild.direction+="-right";
 		rightChild.depth=this.depth+1;
+		rightChild.ID=treeStats.LeafCount+1;
+		
+		treeStats.LeafCount+=2;
 		
 		leafNode=false;
 
 		return 0;
 	}
 	
-	public void UpdateCatFeatures(int [] FeatureVector, float RealValue,float residual){
+	public void UpdateCatFeatures(int [] FeatureVector, float RealValue,float residual, int ThreadID){
 		//if(FinalLeft&&FinalRight){
 		if(CompletedLeft&&CompletedRight){
 			return;
@@ -293,20 +331,20 @@ public class TreeNode implements java.io.Serializable{
 				if(CompletedLeft){
 					return;
 				}
-				leftChild.UpdateCatFeatures(FeatureVector, RealValue,residual);
+				leftChild.UpdateCatFeatures(FeatureVector, RealValue,residual,ThreadID);
 			}else{
 				//if(FinalRight){
 				if(CompletedRight){
 					return;
 				}
-				rightChild.UpdateCatFeatures(FeatureVector, RealValue,residual);
+				rightChild.UpdateCatFeatures(FeatureVector, RealValue,residual,ThreadID);
 			}
 			return;
 		}
 
-		GlobalG+=calculateG(RealValue,residual);
-		GlobalH+=calculateH(RealValue,residual);
-		GlobalCount++;
+		GlobalG[ThreadID]+=calculateG(RealValue,residual);
+		GlobalH[ThreadID]+=calculateH(RealValue,residual);
+		GlobalCount[ThreadID]++;
 
 		for(int i=0;i<FeatureVector.length;i++){
 			if(i==0){
@@ -315,7 +353,7 @@ public class TreeNode implements java.io.Serializable{
 			if(i==1){
 				count2++;
 			}
-			InsertCatFeature(FeatureVector[i],RealValue,residual);
+			InsertCatFeature(FeatureVector[i],RealValue,residual,ThreadID);
 
 		}
 	}
@@ -330,11 +368,13 @@ public class TreeNode implements java.io.Serializable{
 	
 	public TreeNode CreateChild(){
 		TreeNode Child=new TreeNode();
+		Child.treeStats=treeStats;
 		Child.InitCategorical(Categories);
 		Child.minLeafCount=minLeafCount;
 		Child.fields=fields;
 		Child.direction=direction;
-		Child.treeStats=treeStats;
+		
+
 		return Child;
 	}
 	

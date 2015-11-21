@@ -6,6 +6,9 @@ import models.BaseModel;
 public class BoostedModel {
 	public BaseModel model;
 	public DataPreparer dataPreparer;
+	public int seed=1;
+	public int [] UsedFeatures;
+	public float subSample=1;
 	
 	public float predict(String Features){
 		String [] values=Features.split(":");
@@ -22,4 +25,6 @@ public class BoostedModel {
 		float Result=model.predict(tempLFV);
 		return Result;
 	}
+	
+	
 }

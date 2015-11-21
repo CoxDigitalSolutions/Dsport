@@ -199,7 +199,7 @@ public class FieldAwereFactorizationMachine2 extends BaseModel implements java.i
 	}
 
 	@Override
-	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector, int ID) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

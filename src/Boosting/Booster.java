@@ -10,7 +10,7 @@ public class Booster {
 	public float [] predictions;
 	public int [] ModelCount;
 	int modelsTrained=0;
-	float eta=0.2F;
+	float eta=0.09F;
 	
 	//SamplesPerThread, threads,FilePath,startPoint, endPoint,dataPreparer)
 	
@@ -53,7 +53,7 @@ public class Booster {
 			double startTime = System.currentTimeMillis();
 			ModelTrainers[i].booster=this;
 			BoostedModels[i].model.Init();
-			ModelTrainers[i].TrainModel(BoostedModels[i].model,BoostedModels[i].dataPreparer);
+			ModelTrainers[i].TrainModel(BoostedModels[i]);
 			modelsTrained++;
 			double endTime = System.currentTimeMillis();
 			double secondsTaken=(double) ((endTime - startTime)/1000);
@@ -61,6 +61,8 @@ public class Booster {
 			try {
 				if(ModelThreading!=null){
 					startTime = System.currentTimeMillis();
+					//System.out.print(validationStartPoint);
+					ModelThreading.subSample=1;
 					ModelThreading.train(null, validationSamplesPerThread, validationThreads,validationFilePath,validationStartPoint, validationEndPoint,validationDataPreparer);
 					endTime = System.currentTimeMillis();
 					secondsTaken=(double) ((endTime - startTime)/1000);

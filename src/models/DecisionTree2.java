@@ -19,12 +19,12 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 	@Override
 	public float predict(int[] FeatureVector) {
 		// TODO Auto-generated method stub
-		return root.predict(FeatureVector);
+		return 0;//root.predict(FeatureVector);
 	}
 
 
 	public float Train(float RealValue, int[] FeatureVector,float residual) {
-		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
+		//root.UpdateCatFeatures(FeatureVector, RealValue,residual);
 		return 0;
 	}
 	
@@ -39,14 +39,16 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 	}
 
 	public int StopCalcuations() {
-		int cost=root.CalculateCost();
+		/*int cost=root.CalculateCost();
 		CurrentDepth++;
 		if(cost<0 || maxDepth<=CurrentDepth){
 			//root.PrintTree();
 			root.ClearData();
 			return -1;
 		}
+		*/
 		return 1;
+		
 	}
 
 
@@ -58,8 +60,8 @@ public class DecisionTree2  extends BaseModel implements java.io.Serializable{
 
 
 	@Override
-	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector) {
-		root.UpdateCatFeatures(FeatureVector, RealValue,residual);
+	public float TrainBoosted(float RealValue, float residual, int[] FeatureVector, int ID) {
+		//root.UpdateCatFeatures(FeatureVector, RealValue,residual);
 
 		// TODO Auto-generated method stub
 		return 0;

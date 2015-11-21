@@ -13,32 +13,45 @@ public class ModelTrainer {
 	public int Rounds;
 	public boolean ModelDecidedEnd=false;
 	public String FilePath;
+	public int Diff=0;
+	int [] StartingPositions;
+	
 	
 	public Booster booster;
 	ModelThreadingDiskBinary ModelThreading=new ModelThreadingDiskBinary();
 	
 	
-	public void TrainModel(BaseModel model,DataPreparer dataPreparer){
+	public void TrainModel(BoostedModel boostedModel){
 		
-		ModelThreading.verbose=false;
-		ModelThreading.booster=booster;
+		boostedModel.dataPreparer.setUsedFeatures(boostedModel.UsedFeatures);
 		for(int i=0;i<Rounds || ModelDecidedEnd;i++){
 			double startTime = System.currentTimeMillis();
     		try {
-				ModelThreading.train(model, SamplesPerThread, threads,FilePath,startPoint, endPoint,dataPreparer);
+    			ModelThreading.seed=boostedModel.seed;
+    			ModelThreading.subSample=boostedModel.subSample;
+				ModelThreading.train(boostedModel.model, SamplesPerThread, threads,FilePath,startPoint, endPoint,boostedModel.dataPreparer);
 			} catch (InterruptedException e) {
 				System.out.println("failed training model");
 				e.printStackTrace();
 			}
 
-    		int result=model.StopCalcuations();
+    		int result=boostedModel.model.StopCalcuations();
     		double endTime = System.currentTimeMillis();
 			double secondsTaken=(double) ((endTime - startTime)/1000);
-			System.out.println("round:"+i+" time taken="+secondsTaken);
+			//System.out.println("round:"+i+" time taken="+secondsTaken);
     		if(result==-1){
     			break;
     		}
 		}
+	}
+	
+	public void SetPosition(DataPreparer dataPreparer){
+		ModelThreading.SetPositions(SamplesPerThread, threads,FilePath,startPoint, endPoint,dataPreparer);
+	}
+	public void Init(){
+		ModelThreading.verbose=false;
+		ModelThreading.booster=booster;
+		ModelThreading.Diff=Diff;
 	}
 
 }

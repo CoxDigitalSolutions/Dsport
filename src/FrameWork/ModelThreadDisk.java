@@ -115,7 +115,7 @@ public class ModelThreadDisk extends Thread{
 				}else{
 					// need to make sure Pos is correct
 					float residual=booster.GetLatestPrediction(Pos, sCurrentLine);
-					result = BaseModel.TrainBoosted(RealValue, residual, tempLFV);
+					result = BaseModel.TrainBoosted(RealValue, residual, tempLFV, ID);
 				}
 			}
 		/*}  catch (Exception e) {

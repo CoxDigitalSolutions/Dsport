@@ -44,42 +44,42 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	}
 	
 	private int ValueToPosition(double value,double [] DoubleMap){
+
 		int pos=DoubleMap.length/2;
 		int diff=pos;
 		double currentVal=DoubleMap[pos];
 		int mixLimit=100;
 		if(diff<mixLimit){
 			for(int i=0;i<DoubleMap.length;i++){
-				if(value<DoubleMap[i]){
-					//System.out.println("value="+value+" Fval="+DoubleMap[i]);
+				if(value<=DoubleMap[i]){
 					return i;
 				}
 			}
 		}
-		
+
 		while(true){
 			if(value==currentVal){
-				break;
+				return pos;
 			}
-			diff/=2.001;
-			if(diff==0){
-				break;
-			}
+			diff/=2;
+
 			if(value<currentVal){
 				pos-=diff;
+				
+				if(pos-diff<10){
+					pos=0;diff=0;
+				}
 				if(diff<mixLimit){
-					for(int i=pos;i<DoubleMap.length;i++){
-						if(value<DoubleMap[i]){
-							//System.out.println("value="+value+" Fval="+DoubleMap[i]);
+					for(int i=pos-diff;i<DoubleMap.length;i++){
+						if(value<=DoubleMap[i]){
 							return i;
 						}
 					}
 				}
 			}else if(value>currentVal){
 				if(diff<mixLimit){
-					for(int i=pos-(diff/2);i<DoubleMap.length;i++){
-						if(value<DoubleMap[i]){
-							//System.out.println("value="+value+" Fval="+DoubleMap[i]);
+					for(int i=pos-(diff/2)-2;i<DoubleMap.length;i++){
+						if(value<=DoubleMap[i]){
 							return i;
 						}
 					}
@@ -87,14 +87,14 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 				pos+=diff;
 			}
 			currentVal=DoubleMap[pos];
-			//System.out.println(myID+"="+pos);
-
 		}
-		//System.out.println("value="+value+" Fval="+DoubleMap[pos]);
-		return pos;
+
 	}
 	
 	private int ValueToPosition(double value,TreeMap<Double, Stats> desSortedMap){
+		for (Map.Entry<Double, Stats> entry : desSortedMap.entrySet()) {
+			//System.out.println(entry.getKey()+"="+entry.getValue().position);
+		}
 		Double key=desSortedMap.floorKey(value);
 		if(key==null){
 			return 0;
@@ -115,7 +115,6 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	private void AddTargetValue(double value,TreeMap<Double, Stats> desSortedMap){
 		
 		Double fKey=desSortedMap.floorKey(value);
-		
 		if(desSortedMap.isEmpty() || fKey==null){
 			AddNewValue(value,desSortedMap);
 		}else{
@@ -131,6 +130,7 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	public void Finalize(){
 		AbsValueMapFloat=Finalize(AbsValueMap);
 		CountMapFloat=Finalize(CountMap);
+
 	}
 	
 	private double [] Finalize(TreeMap<Double, Stats> desSortedMap){
@@ -139,8 +139,7 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 
 		for (Map.Entry<Double, Stats> entry : desSortedMap.entrySet()) {
 			entry.getValue().position=count;
-
-			DoubleMap[count]=entry.getValue().sum/entry.getValue().count;
+			DoubleMap[count]=entry.getKey();
 			count++;
 		}
 		return DoubleMap;

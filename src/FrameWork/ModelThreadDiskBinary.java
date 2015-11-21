@@ -23,15 +23,19 @@ public class ModelThreadDiskBinary extends Thread{
    public int AdTotCountRound;
    FileChannel inChannel;
    ByteBuffer buffer;
+   InitBRBinary BRthread;
    private DataPreparer dataPreparer;
    boolean verbose=false;
    public String location="";
    public Booster booster;
    public boolean Validation=false;
+   public int Diff=0;
+   public int seed=1;
+   public float subSample=1;
 
 
    
-   public ModelThreadDiskBinary(BaseModel BaseModel,int rounds, int ID,int TotalThreads,String File,int minID,int maxID,FileChannel inChannel,ByteBuffer buffer,DataPreparer dataPreparer, boolean verbose)
+   public ModelThreadDiskBinary(BaseModel BaseModel,int rounds, int ID,int TotalThreads,String File,int minID,int maxID,InitBRBinary BRthread,DataPreparer dataPreparer, boolean verbose)
    {
       this.BaseModel = BaseModel;
       this.rounds = rounds;
@@ -41,10 +45,11 @@ public class ModelThreadDiskBinary extends Thread{
       this.minID=minID;
       this.maxID=maxID;
       this.File=File;
-      this.inChannel=inChannel;
-      this.buffer=buffer;
+      this.inChannel=BRthread.inChannel;
+      this.buffer=BRthread.buffer;
       this.dataPreparer=dataPreparer;
       this.verbose=verbose;
+      this.BRthread=BRthread;
       
    }
 	
@@ -58,21 +63,29 @@ public class ModelThreadDiskBinary extends Thread{
 	  float PrintTime=1.0F;
 	  float temp=PrintTime;
 
-
+	  
 	  AdTotCountRound=0;
-
+	 
 	  int Size=maxID-minID;
-	  int Pos=(int) minID+(Size/TotalThreads*ID);
+	  int Pos=BRthread.StartPosition;
+
+			  //(int) minID+(Size/TotalThreads*ID);
 
 	  PrintWriter writer=null;
 	  if(location.length()>0){
 		  writer = new PrintWriter(location+"-"+ID,"UTF-8");
 	  }
-
+	  
+	  rounds+=Diff;
+	  
+	  Random rand=new Random();
+	  rand.setSeed(seed);
+	 
       while(i<rounds)
       {
-    	
+
 		  if(UtilByte.CheckUpdateBuffer(inChannel,buffer)==-1){
+			  
 			inChannel = new FileInputStream(File).getChannel();
 			buffer = ByteBuffer.allocateDirect(16384*2);
 			buffer.flip();
@@ -99,9 +112,12 @@ public class ModelThreadDiskBinary extends Thread{
 
 
 
+    	
+    	int [][] tempLFV=dataPreparer.GetFeatures(inChannel,buffer);
 
-		int [][] tempLFV=dataPreparer.GetFeatures(inChannel,buffer);
 		
+		
+
 		//System.out.println(tempLFV.length);
 	  	  if(tempLFV==null || tempLFV.length==0){
 				inChannel = new FileInputStream(File).getChannel();
@@ -112,25 +128,34 @@ public class ModelThreadDiskBinary extends Thread{
 				continue;
 	  	  }
 	  	float RealValue=0;
-	  	int ID=0;
+	  	int sampleID=0;
+	  	
+
+	  	
 	  	if(location.length()>0){
-	  		ID=dataPreparer.GetIDBinary(inChannel,buffer);
+	  		sampleID=dataPreparer.GetIDBinary(inChannel,buffer);
 	  	}else{
+
 	  		RealValue=dataPreparer.GetPredictionBinary(inChannel,buffer);
 	  	}
-		
+	  	
+	  	float RandNum=rand.randf(0, 1, 5);
+	  	if(RandNum>subSample){
+		     i++;
+	  		continue;
+	  	}
 		
 		float result=0;
 			if(location.length()>0){
 				if(booster==null){
 					int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
 					result = BaseModel.predict(UsedFatures);
-					writer.write(ID+","+result+"\n");
+					writer.write(sampleID+","+result+"\n");
 				}else{
 					
 					float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 					float WriterResult=(float) UtilMath.exp(residual)-1;
-					writer.write(ID+","+WriterResult+"\n");
+					writer.write(sampleID+","+WriterResult+"\n");
 				}
 			}else{
 				if(booster==null){
@@ -144,11 +169,14 @@ public class ModelThreadDiskBinary extends Thread{
 						result=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 
 					}else{
-						
+
+
 						float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
+
 						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
 
-						result = BaseModel.TrainBoosted(RealValue, residual, UsedFatures);
+						
+						result = BaseModel.TrainBoosted(RealValue, residual, UsedFatures, ID);
 					}
 				}
 			}
@@ -170,6 +198,7 @@ public class ModelThreadDiskBinary extends Thread{
 
 	     i++;
       }
+      //System.out.println(ID+ " End=" + Pos + " inChannelPos="+inChannel.position()+" bufferPos="+buffer.position());
 
 	  if(location.length()>0){
 		  writer.close();
