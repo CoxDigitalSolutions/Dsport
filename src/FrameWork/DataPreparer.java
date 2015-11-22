@@ -583,6 +583,48 @@ public class DataPreparer implements java.io.Serializable{
 		return Result;
 	}
 	
+	
+	public int [] GetFeaturesFromInt(int [] Features, int [] Positions,int [] usedFeatures){
+		int [] WorkingSet=new int [Features.length];
+		int usedFeature=0;
+		int count=0;
+		int Position=0;
+		
+
+		
+		for(int i=0;i<Positions.length;i++){
+			
+			while(usedFeatures[usedFeature]<Positions[i] && usedFeature<usedFeatures.length-1){
+				usedFeature++;
+			}
+			if(usedFeatures[usedFeature]==Positions[i]){
+
+				
+				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
+
+				if(WorkingSet[count]>maxFeatures[count]){
+					maxFeatures[count]=WorkingSet[count];
+				}
+				if(WorkingSet[count]<minFeatures[count]){
+					minFeatures[count]=WorkingSet[count];
+				}
+
+				if(Position>0){
+					WorkingSet[count]++;
+				}
+				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
+				count++;
+			}
+		}
+		
+		int [] Result=new int [count];
+		for(int i=0;i<count;i++){
+			Result[i]=WorkingSet[i];
+		}
+
+		return Result;
+	}
+	
 	public void PrintMaxMinFeautre(){
 		for(int i=0;i<maxFeatures.length;i++){
 			System.out.println(i + " max="+maxFeatures[i] + " min="+minFeatures[i]);

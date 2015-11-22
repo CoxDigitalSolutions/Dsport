@@ -141,7 +141,7 @@ public class ModelThreadDiskBinary extends Thread{
 	  	
 	  	float RandNum=rand.randf(0, 1, 5);
 	  	if(RandNum>subSample){
-		     i++;
+		    i++;
 	  		continue;
 	  	}
 		
@@ -153,7 +153,7 @@ public class ModelThreadDiskBinary extends Thread{
 					writer.write(sampleID+","+result+"\n");
 				}else{
 					
-					float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
+					float residual=booster.GetLatestPredictionClean(Pos, tempLFV[0],tempLFV[1]);
 					float WriterResult=(float) UtilMath.exp(residual)-1;
 					writer.write(sampleID+","+WriterResult+"\n");
 				}
@@ -166,7 +166,7 @@ public class ModelThreadDiskBinary extends Thread{
 					// need to make sure Pos is correct
 					if(Validation){
 
-						result=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
+						result=booster.GetLatestPredictionValid(Pos, tempLFV[0],tempLFV[1]);
 
 					}else{
 

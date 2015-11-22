@@ -9,6 +9,8 @@ public class Booster {
 	
 	public float [] predictions;
 	public int [] ModelCount;
+	public float [] predictionsValid;
+	public int [] ModelCountValid;
 	int modelsTrained=0;
 	float eta=0.09F;
 	
@@ -23,9 +25,11 @@ public class Booster {
 	
 	public ModelThreadingDiskBinary ModelThreading;
 	
-	public void init(int sampleCount){
+	public void init(int sampleCount,int sampleCountValid){
 		predictions=new float[sampleCount];
 		ModelCount=new int[sampleCount];
+		predictionsValid=new float[sampleCountValid];
+		ModelCountValid=new int[sampleCountValid];
 	}
 	
 	public float GetLatestPrediction(int sample,String Features){
@@ -36,13 +40,36 @@ public class Booster {
 		return predictions[sample];
 	}
 	
+	public float GetLatestPredictionValid(int sample,String Features){
+		for(int i=ModelCountValid[sample];i<modelsTrained;i++){
+			predictionsValid[sample]+=BoostedModels[i].predict(Features);
+			ModelCountValid[sample]++;
+		}
+		return predictionsValid[sample];
+	}
+	
 	public float GetLatestPrediction(int sample,int [] Features, int [] Positions){
-		
 		for(int i=ModelCount[sample];i<modelsTrained;i++){
 			predictions[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
 			ModelCount[sample]++;
 		}
 		return predictions[sample];
+	}
+	
+	public float GetLatestPredictionValid(int sample,int [] Features, int [] Positions){
+		for(int i=ModelCountValid[sample];i<modelsTrained;i++){
+			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
+			ModelCountValid[sample]++;
+		}
+		return predictionsValid[sample];
+	}
+	
+	public float GetLatestPredictionClean(int sample,int [] Features, int [] Positions){
+		for(int i=0;i<modelsTrained;i++){
+			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
+			ModelCountValid[sample]++;
+		}
+		return predictionsValid[sample];
 	}
 	
 	public void train(){
