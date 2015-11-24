@@ -12,7 +12,7 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	private static final long serialVersionUID = 1L;
 	final int AbsValue=1;
 	final int Count=2;
-	int Type=2;
+	public int Type=2;
 
 	public TreeMap<Double, Stats> AbsValueMap = new TreeMap<Double, Stats>();
 	double [] AbsValueMapFloat;
@@ -24,6 +24,7 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 		ReduceMap(maxReduce, goal, ReduceLimit,AbsValueMap,1);
 		ReduceMap(maxReduce, goal, ReduceLimit,CountMap,2);
 	}
+	
 	private void ReduceMap(int maxReduce, int goal, int ReduceLimit,TreeMap<Double, Stats> desSortedMap, int type){
 		while(desSortedMap.size()>ReduceLimit){
 			ReduceMap(maxReduce, goal,desSortedMap, type);
@@ -31,10 +32,13 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	}
 	
 	public int ValueToPosition(double value){
+		
 		if(Type==1){
+			
 			return ValueToPosition(value,AbsValueMapFloat);
 			//return ValueToPosition(value,AbsValueMap);
 		}else if(Type==2){
+			
 			return ValueToPosition(value,CountMapFloat);
 			//return ValueToPosition(value,CountMap);
 		}else{
@@ -46,6 +50,7 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 	private int ValueToPosition(double value,double [] DoubleMap){
 
 		int pos=DoubleMap.length/2;
+
 		int diff=pos;
 		double currentVal=DoubleMap[pos];
 		int mixLimit=100;
@@ -74,12 +79,18 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 						if(value<=DoubleMap[i]){
 							return i;
 						}
+						if(i==DoubleMap.length-1){
+							return i;
+						}
 					}
 				}
 			}else if(value>currentVal){
 				if(diff<mixLimit){
 					for(int i=pos-(diff/2)-2;i<DoubleMap.length;i++){
 						if(value<=DoubleMap[i]){
+							return i;
+						}
+						if(i==DoubleMap.length-1){
 							return i;
 						}
 					}
@@ -145,37 +156,44 @@ public class NumericalFeatureSummary  implements java.io.Serializable{
 		return DoubleMap;
 	}
 	
-	private void ReduceMap(int maxReduce, int goal){
+	public void ReduceMap(int maxReduce, int goal){
+
 		ReduceMap(maxReduce,goal,AbsValueMap,1);
 		ReduceMap(maxReduce,goal,CountMap,2);
+		System.out.println(CountMap.size());
 	}
 	
+
+	
+	
 	private void ReduceMap(int maxReduce, int goal,TreeMap<Double, Stats> desSortedMap, int type){
-		Map<Double, Stats[]> CostMap= getCostMap(desSortedMap,type);
-
-
-		int count=0;
-
-		count=0;
-		int size=desSortedMap.size();
-		for (Map.Entry<Double, Stats[]> entry : CostMap.entrySet()) {
-			Stats pStats=entry.getValue()[0];
-			Stats cStats=entry.getValue()[1];
-			
-			if(desSortedMap.containsKey(pStats.min)&& desSortedMap.containsKey(cStats.min)){
-				//System.out.println(entry.getKey()+"\t"+prevF+"\t"+currentF);
-				desSortedMap.remove(cStats.min);
-				desSortedMap.remove(pStats.min);
-				pStats.min=Math.min(pStats.min, cStats.min);
-				pStats.max=Math.max(pStats.max, cStats.max);
-				pStats.count+=cStats.count;
-				pStats.sum+=cStats.sum;
+		while(desSortedMap.size()>goal){
+			Map<Double, Stats[]> CostMap= getCostMap(desSortedMap,type);
+	
+	
+			int count=0;
+	
+			count=0;
+			int size=desSortedMap.size();
+			for (Map.Entry<Double, Stats[]> entry : CostMap.entrySet()) {
+				Stats pStats=entry.getValue()[0];
+				Stats cStats=entry.getValue()[1];
 				
-
-				desSortedMap.put(pStats.min, pStats);
-				count++;
-				if(count>=maxReduce || size-count<=goal){
-					break;
+				if(desSortedMap.containsKey(pStats.min)&& desSortedMap.containsKey(cStats.min)){
+					//System.out.println(entry.getKey()+"\t"+prevF+"\t"+currentF);
+					desSortedMap.remove(cStats.min);
+					desSortedMap.remove(pStats.min);
+					pStats.min=Math.min(pStats.min, cStats.min);
+					pStats.max=Math.max(pStats.max, cStats.max);
+					pStats.count+=cStats.count;
+					pStats.sum+=cStats.sum;
+					
+					System.out.println(pStats.min);
+					desSortedMap.put(pStats.min, pStats);
+					count++;
+					if(count>=maxReduce || size-count<=goal){
+						break;
+					}
 				}
 			}
 		}

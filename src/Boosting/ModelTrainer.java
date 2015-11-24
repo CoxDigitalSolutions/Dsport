@@ -24,11 +24,14 @@ public class ModelTrainer {
 	public void TrainModel(BoostedModel boostedModel){
 		
 		boostedModel.dataPreparer.setUsedFeatures(boostedModel.UsedFeatures);
+		
 		for(int i=0;i<Rounds || ModelDecidedEnd;i++){
+
 			double startTime = System.currentTimeMillis();
     		try {
     			ModelThreading.seed=boostedModel.seed;
     			ModelThreading.subSample=boostedModel.subSample;
+    			ModelThreading.boostedModel=boostedModel;
 				ModelThreading.train(boostedModel.model, SamplesPerThread, threads,FilePath,startPoint, endPoint,boostedModel.dataPreparer);
 			} catch (InterruptedException e) {
 				System.out.println("failed training model");

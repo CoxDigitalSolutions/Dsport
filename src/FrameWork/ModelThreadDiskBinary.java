@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import Boosting.BoostedModel;
 import Boosting.Booster;
 import models.BaseModel;
 
@@ -32,7 +33,7 @@ public class ModelThreadDiskBinary extends Thread{
    public int Diff=0;
    public int seed=1;
    public float subSample=1;
-
+   public BoostedModel boostedModel;
 
    
    public ModelThreadDiskBinary(BaseModel BaseModel,int rounds, int ID,int TotalThreads,String File,int minID,int maxID,InitBRBinary BRthread,DataPreparer dataPreparer, boolean verbose)
@@ -80,9 +81,10 @@ public class ModelThreadDiskBinary extends Thread{
 	  
 	  Random rand=new Random();
 	  rand.setSeed(seed);
-	 
+	  
       while(i<rounds)
       {
+ 
 
 		  if(UtilByte.CheckUpdateBuffer(inChannel,buffer)==-1){
 			  
@@ -98,7 +100,7 @@ public class ModelThreadDiskBinary extends Thread{
     	if(Pos<minID){
     		continue;
     	}
-
+    	
     	if(rounds*temp<i){
     		if(verbose){
 	    		System.out.println("Thread " + ID + " :" + Math.round(temp*100) 
@@ -144,7 +146,7 @@ public class ModelThreadDiskBinary extends Thread{
 		    i++;
 	  		continue;
 	  	}
-		
+
 		float result=0;
 			if(location.length()>0){
 				if(booster==null){
@@ -154,8 +156,8 @@ public class ModelThreadDiskBinary extends Thread{
 				}else{
 					
 					float residual=booster.GetLatestPredictionClean(Pos, tempLFV[0],tempLFV[1]);
-					float WriterResult=(float) UtilMath.exp(residual)-1;
-					writer.write(sampleID+","+WriterResult+"\n");
+					//float WriterResult=(float) UtilMath.exp(residual)-1;
+					writer.write(sampleID+","+residual+"\n");
 				}
 			}else{
 				if(booster==null){
@@ -172,21 +174,23 @@ public class ModelThreadDiskBinary extends Thread{
 
 
 						float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
-
 						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
+						float TransformedRealValue=boostedModel.targetTransform.TransformTarget(RealValue);
+						float TransformedResidual=boostedModel.targetTransform.TransformTarget(residual);
 
-						
-						result = BaseModel.TrainBoosted(RealValue, residual, UsedFatures, ID);
+						result = BaseModel.TrainBoosted(TransformedRealValue, TransformedResidual, UsedFatures, ID);
 					}
 				}
 			}
 
-		
+
 		float tempC=0;
 		
-		result=(float) UtilMath.exp(result)-1;
-		RealValue=(float) UtilMath.exp(RealValue)-1;
-		//System.out.println(result +" - "+ RealValue);
+		//result=(float) UtilMath.exp(result)-1;
+		//RealValue=(float) UtilMath.exp(RealValue)-1;
+		if(result>0){
+			//System.out.println(result +" - "+ RealValue);
+		}
 		float tempNum=(result-RealValue)/RealValue;
 
 		tempC=tempNum*tempNum;

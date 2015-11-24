@@ -12,7 +12,7 @@ public class Booster {
 	public float [] predictionsValid;
 	public int [] ModelCountValid;
 	int modelsTrained=0;
-	float eta=0.09F;
+
 	
 	//SamplesPerThread, threads,FilePath,startPoint, endPoint,dataPreparer)
 	
@@ -34,7 +34,7 @@ public class Booster {
 	
 	public float GetLatestPrediction(int sample,String Features){
 		for(int i=ModelCount[sample];i<modelsTrained;i++){
-			predictions[sample]+=BoostedModels[i].predict(Features);
+			predictions[sample]+=BoostedModels[i].predict(Features)*BoostedModels[i].eta;
 			ModelCount[sample]++;
 		}
 		return predictions[sample];
@@ -50,7 +50,7 @@ public class Booster {
 	
 	public float GetLatestPrediction(int sample,int [] Features, int [] Positions){
 		for(int i=ModelCount[sample];i<modelsTrained;i++){
-			predictions[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
+			predictions[sample]+=BoostedModels[i].predict(Features,Positions,predictions[sample],BoostedModels[i].eta);
 			ModelCount[sample]++;
 		}
 		return predictions[sample];
@@ -58,18 +58,20 @@ public class Booster {
 	
 	public float GetLatestPredictionValid(int sample,int [] Features, int [] Positions){
 		for(int i=ModelCountValid[sample];i<modelsTrained;i++){
-			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
+			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions,predictionsValid[sample],BoostedModels[i].eta);
+			if(sample==1000){
+			}
 			ModelCountValid[sample]++;
 		}
 		return predictionsValid[sample];
 	}
 	
 	public float GetLatestPredictionClean(int sample,int [] Features, int [] Positions){
+		float CleanPrediction=0;
 		for(int i=0;i<modelsTrained;i++){
-			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions)*eta;
-			ModelCountValid[sample]++;
+			CleanPrediction+=BoostedModels[i].predict(Features,Positions,CleanPrediction,BoostedModels[i].eta);
 		}
-		return predictionsValid[sample];
+		return CleanPrediction;
 	}
 	
 	public void train(){

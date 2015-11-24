@@ -47,6 +47,12 @@ public class DataPreparer implements java.io.Serializable{
 		}
 	}
 	
+	public void Reduce(int maxReduce, int goal){
+		for(int i=0;i<FeatureInfo.length;i++){
+			FeatureInfo[i].FeatureSummary.ReduceMap(maxReduce, goal);
+		}
+	}
+	
 	public void Update(String [] RawFeatures){
 		for(int i=0;i<RawFeatures.length;i++){
 			if(RawFeatures[i].contains(SubDelimiter)){
@@ -552,14 +558,15 @@ public class DataPreparer implements java.io.Serializable{
 		
 		for(int i=0;i<Positions.length;i++){
 			
+			
 			while(usedFeatures[usedFeature]<Positions[i] && usedFeature<usedFeatures.length-1){
 				usedFeature++;
 			}
+
 			if(usedFeatures[usedFeature]==Positions[i]){
 
-				
 				WorkingSet[count]=Position+FeatureInfo[Positions[i]].GetProcessedFeatureInt(Features[i]);
-
+	
 				if(WorkingSet[count]>maxFeatures[count]){
 					maxFeatures[count]=WorkingSet[count];
 				}
@@ -573,9 +580,11 @@ public class DataPreparer implements java.io.Serializable{
 				Position+=FeatureInfo[usedFeatures[usedFeature]].GetMaxID()+1;
 				count++;
 			}
+			
 		}
 		
 		int [] Result=new int [count];
+
 		for(int i=0;i<count;i++){
 			Result[i]=WorkingSet[i];
 		}

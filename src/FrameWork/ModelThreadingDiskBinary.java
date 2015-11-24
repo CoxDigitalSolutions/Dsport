@@ -3,6 +3,8 @@ package frameWork;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+
+import Boosting.BoostedModel;
 import Boosting.Booster;
 import models.BaseModel;
 
@@ -17,6 +19,7 @@ public class ModelThreadingDiskBinary {
    int [] StartPositions;
 	public int seed=1;
 	public float subSample=1;
+	public BoostedModel boostedModel;
 	
 	public double [] train(BaseModel BaseModel,int rounds,int threads, String File,int minID,int maxID,DataPreparer dataPreparer) throws InterruptedException{
 		
@@ -48,12 +51,14 @@ public class ModelThreadingDiskBinary {
 		
 		for(int i=0;i<threads;i++){
 			int ID=i;
+
 			ModelThreads[ID]=new ModelThreadDiskBinary(BaseModel,rounds,ID,threads,File,minID,maxID,BRthread[ID],dataPreparer,verbose);
 			ModelThreads[ID].location=location;
 			ModelThreads[ID].booster=booster;
 			ModelThreads[ID].Validation=validation;
 			ModelThreads[ID].seed=seed;
 			ModelThreads[ID].subSample=subSample;
+			ModelThreads[ID].boostedModel=boostedModel;
 			if(i==threads-1){
 				ModelThreads[ID].Diff=Diff;
 			}
@@ -103,13 +108,10 @@ public class ModelThreadingDiskBinary {
 			  
 			  while(currPos<StartPositionsBuffer.length) {
 				  if(counter==StartPosition){
-					  System.out.println(counter);
 					  StartPositionsInChannel[currPos]=inChannel.position();
 					  StartPositionsBuffer[currPos]=buffer.position();
 					  StartPositions[currPos]=counter;
 
-					  System.out.println(currPos+"="+StartPositionsInChannel[currPos]);
-					  System.out.println("counter="+counter);
 					  currPos++;
 					  StartPosition+=Size/threads;
 				  }

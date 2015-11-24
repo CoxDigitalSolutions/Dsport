@@ -15,7 +15,7 @@ public class FeatureInfo implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	int myID=0;
-	NumericalFeatureSummary FeatureSummary=new NumericalFeatureSummary();
+	public NumericalFeatureSummary FeatureSummary=new NumericalFeatureSummary();
 	int Type=1;
 	
 	final int SMOOTHEDCATEGORICAL=1;
@@ -166,7 +166,6 @@ public class FeatureInfo implements java.io.Serializable {
 				ID=Feature;
 			}else if(NumericalType>=2){
 				ID=FeatureSummary.ValueToPosition(Feature);
-				
 			}
 			
 			if(ID<=maxID){
