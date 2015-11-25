@@ -23,7 +23,7 @@ public class ModelTrainer {
 	
 	public void TrainModel(BoostedModel boostedModel){
 		
-		boostedModel.dataPreparer.setUsedFeatures(boostedModel.UsedFeatures);
+		boostedModel.DataPreparer.setUsedFeatures(boostedModel.UsedFeatures);
 		
 		for(int i=0;i<Rounds || ModelDecidedEnd;i++){
 
@@ -32,7 +32,7 @@ public class ModelTrainer {
     			ModelThreading.seed=boostedModel.seed;
     			ModelThreading.subSample=boostedModel.subSample;
     			ModelThreading.boostedModel=boostedModel;
-				ModelThreading.train(boostedModel.model, SamplesPerThread, threads,FilePath,startPoint, endPoint,boostedModel.dataPreparer);
+				ModelThreading.train(boostedModel.model, SamplesPerThread, threads,FilePath,startPoint, endPoint,boostedModel.DataPreparer);
 			} catch (InterruptedException e) {
 				System.out.println("failed training model");
 				e.printStackTrace();

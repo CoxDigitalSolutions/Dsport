@@ -59,8 +59,6 @@ public class Booster {
 	public float GetLatestPredictionValid(int sample,int [] Features, int [] Positions){
 		for(int i=ModelCountValid[sample];i<modelsTrained;i++){
 			predictionsValid[sample]+=BoostedModels[i].predict(Features,Positions,predictionsValid[sample],BoostedModels[i].eta);
-			if(sample==1000){
-			}
 			ModelCountValid[sample]++;
 		}
 		return predictionsValid[sample];
@@ -75,7 +73,7 @@ public class Booster {
 	}
 	
 	public void train(){
-		ModelThreading.verbose=true;
+		ModelThreading.verbose=false;
 		ModelThreading.booster=this;
 		ModelThreading.validation=true;;
 		for(int i=0;i<BoostedModels.length;i++){
@@ -84,18 +82,32 @@ public class Booster {
 			BoostedModels[i].model.Init();
 			ModelTrainers[i].TrainModel(BoostedModels[i]);
 			modelsTrained++;
+			double [] result = null;
+			try {
+				ModelTrainers[i].ModelThreading.ValidTrain=true;
+				result=ModelTrainers[i].ModelThreading.train(null, ModelTrainers[i].SamplesPerThread*ModelTrainers[i].threads, 1,ModelTrainers[i].FilePath,ModelTrainers[i].startPoint, ModelTrainers[i].endPoint,BoostedModels[i].DataPreparer);
+				ModelTrainers[i].ModelThreading.ValidTrain=false;
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			double endTime = System.currentTimeMillis();
 			double secondsTaken=(double) ((endTime - startTime)/1000);
-			System.out.println("done training model:"+i+" time taken="+secondsTaken);
+			//System.out.println("done training model:"+i+" time taken="+secondsTaken);
+			if(result!=null){
+				System.out.println(i+" Train cost="+Math.sqrt(result[0]/result[1])+" time="+secondsTaken);
+			}
+			
+
 			try {
-				if(ModelThreading!=null){
+				if(ModelThreading!=null && validationSamplesPerThread>0){
 					startTime = System.currentTimeMillis();
 					//System.out.print(validationStartPoint);
 					ModelThreading.subSample=1;
-					ModelThreading.train(null, validationSamplesPerThread, validationThreads,validationFilePath,validationStartPoint, validationEndPoint,validationDataPreparer);
+					result =ModelThreading.train(null, validationSamplesPerThread, validationThreads,validationFilePath,validationStartPoint, validationEndPoint,validationDataPreparer);
 					endTime = System.currentTimeMillis();
 					secondsTaken=(double) ((endTime - startTime)/1000);
-					System.out.println("done predicting model:"+i+" time taken="+secondsTaken);
+					System.out.println(i+" Validation="+Math.sqrt(result[0]/result[1])+" time="+secondsTaken);
 				}
 			} catch (InterruptedException e) {
 				System.out.println("error validating");

@@ -13,7 +13,7 @@ public class FTRL  extends BaseModel implements java.io.Serializable{
 
 	private static final String US = "_";
 	
-	public int numFeatures = (int) Math.pow(2, 26);
+	public int numFeatures = (int) Math.pow(2, 19);
 	public float α = 0.1F; // learning rate
 	
 	private float[] w;

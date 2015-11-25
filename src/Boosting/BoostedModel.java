@@ -7,7 +7,7 @@ import models.BaseModel;
 
 public class BoostedModel {
 	public BaseModel model;
-	public DataPreparer dataPreparer;
+	public DataPreparer DataPreparer;
 	public int seed=1;
 	public int [] UsedFeatures;
 	public float subSample=1;
@@ -16,7 +16,7 @@ public class BoostedModel {
 	
 	public float predict(String Features){
 		String [] values=Features.split(":");
-		int [] tempLFV=dataPreparer.GetFeatures(values[0]);
+		int [] tempLFV=DataPreparer.GetFeatures(values[0]);
 		
 		float Result=model.predict(tempLFV);
 		Result=targetTransform.RevertTarget(Result);
@@ -24,9 +24,10 @@ public class BoostedModel {
 	}
 	
 	public float predict(int [] Features, int [] Positions, float residual,float eta){
-		int [] tempLFV=dataPreparer.GetFeaturesFromInt(Features,Positions,UsedFeatures);
+
+		int [] tempLFV=DataPreparer.GetFeaturesFromInt(Features,Positions,UsedFeatures);
 		float Result=model.predict(tempLFV)*eta;
-		
+
 		Result+=targetTransform.TransformTarget(residual);
 		
 		Result=targetTransform.RevertTarget(Result);

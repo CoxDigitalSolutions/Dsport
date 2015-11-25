@@ -13,6 +13,7 @@ public class ModelThreadingDiskBinary {
    public String location="";
    public Booster booster;
    public boolean validation=false;
+   public boolean ValidTrain=false;
    public int Diff=0;
    long [] StartPositionsInChannel;
    int [] StartPositionsBuffer;
@@ -56,6 +57,7 @@ public class ModelThreadingDiskBinary {
 			ModelThreads[ID].location=location;
 			ModelThreads[ID].booster=booster;
 			ModelThreads[ID].Validation=validation;
+			ModelThreads[ID].ValidTrain=ValidTrain;
 			ModelThreads[ID].seed=seed;
 			ModelThreads[ID].subSample=subSample;
 			ModelThreads[ID].boostedModel=boostedModel;

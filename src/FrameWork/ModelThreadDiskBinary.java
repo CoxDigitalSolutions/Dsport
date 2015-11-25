@@ -30,6 +30,7 @@ public class ModelThreadDiskBinary extends Thread{
    public String location="";
    public Booster booster;
    public boolean Validation=false;
+   public boolean ValidTrain=false;
    public int Diff=0;
    public int seed=1;
    public float subSample=1;
@@ -170,11 +171,14 @@ public class ModelThreadDiskBinary extends Thread{
 
 						result=booster.GetLatestPredictionValid(Pos, tempLFV[0],tempLFV[1]);
 
+					}else if(ValidTrain){
+						result=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 					}else{
 
 
 						float residual=booster.GetLatestPrediction(Pos, tempLFV[0],tempLFV[1]);
 						int [] UsedFatures=dataPreparer.GetFeaturesFromInt(tempLFV[0],tempLFV[1]);
+
 						float TransformedRealValue=boostedModel.targetTransform.TransformTarget(RealValue);
 						float TransformedResidual=boostedModel.targetTransform.TransformTarget(residual);
 
